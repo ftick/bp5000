@@ -74,6 +74,8 @@ class Match:
         if(num == 1):
             return self.wlink
         return self.wlink.itwlink(num-1)
+    def getmatchdisp(self):
+        return "M"+str(self.uniqueid)
 
 def genm(players):
     # Generates a winners bracket from a list

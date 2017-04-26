@@ -1,4 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
+import math
 
 def drawmatch(match):
     str1 = match.part1.tag if match.part1 else "TBD"
@@ -9,16 +10,23 @@ def drawmatch(match):
     d = ImageDraw.Draw(img)
     font = ImageFont.truetype("/usr/share/fonts/TTF/DejaVuSans.ttf",20)
     d.font = font
-    d.text((20,10), str(int1))
-    d.text((60,10), str1)
-    d.text((20,40), str(int2))
-    d.text((60,40), str2)
+    d.rectangle((0,0,45,80), fill=(0,0,200))
+    d.text((5,2), str(int1))
+    d.text((60,2), str1)
+    d.text((5,53), str(int2))
+    d.text((60,53), str2)
+    d.rectangle((0, 28, 200, 48), fill=(200,0,0))
+    wt = (" W:"+match.wlink.getmatchdisp() if match.wlink else "")
+    lt = (" L:"+match.llink.getmatchdisp() if match.llink else "")
+    font = ImageFont.truetype("/usr/share/fonts/TTF/DejaVuSans.ttf",18)
+    d.font = font
+    d.text((0, 28), match.getmatchdisp()+wt+lt)
     return img
 
 
 def drawbracket(bracket):
     br = bracket
-    img = Image.new('RGBA',(800, len(br)*120),color=(0,0,0))
+    img = Image.new('RGBA',(250+int(220*math.log(len(bracket))/math.log(2)), len(br)*120),color=(0,0,0))
     x = 30
     ymult = 1
     while(br[0] is not None):
@@ -39,7 +47,10 @@ def drawbracket(bracket):
 
 if __name__ == '__main__':
     import data
-    b = data.genm(['player1','player2','player3','player4','player5','player6','player7','player8'])
+    i = 128
+    plist = (['player %s ' % x for x in range(0,i)])
+    b = data.genm(plist)
+    data.genl(b)
     img = drawbracket(b)
     img.show()
 
