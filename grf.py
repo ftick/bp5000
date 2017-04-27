@@ -1,3 +1,6 @@
+# grf.py - Graphical code
+#
+#
 from PIL import Image, ImageDraw, ImageFont
 import math
 
@@ -13,6 +16,8 @@ def drawmatch(match):
     d.rectangle((0,0,45,80), fill=(0,0,200))
     d.text((5,2), str(int1))
     d.text((60,2), str1)
+    if match.winner != 0: 
+        d.text((180,53 if match.winner == 2 else 2), u'\u2714', fill = (30,150,30))
     d.text((5,53), str(int2))
     d.text((60,53), str2)
     d.rectangle((0, 28, 200, 48), fill=(200,0,0))
@@ -23,6 +28,29 @@ def drawmatch(match):
     d.text((0, 28), match.getmatchdisp()+wt+lt)
     return img
 
+def drawspmatch(match):
+    str1 = match.part1.tag if match.part1 else "TBD"
+    int1 = match.part1.seed if match.part1 else ""
+    str2 = match.part2.tag if match.part2 else "TBD"
+    int2 = match.part2.seed if match.part2 else ""
+    img = Image.new('RGBA',(200,80),color=(155,155,255))
+    d = ImageDraw.Draw(img)
+    font = ImageFont.truetype("/usr/share/fonts/TTF/DejaVuSans.ttf",20)
+    d.font = font
+    d.rectangle((0,0,45,80), fill=(0,0,200))
+    d.text((5,2), str(int1))
+    d.text((60,2), str1)
+    d.text((180,2), str(match.upperleft), fill = (0,170,0))    
+    d.text((5,53), str(int2))
+    d.text((60,53), str2)
+    d.text((180, 53), str(match.lowerleft), fill = (0,170,0))
+    d.rectangle((0, 28, 200, 48), fill=(200,0,0))
+    wt = (" W:"+match.wlink.getmatchdisp() if match.wlink else "")
+    lt = (" L:"+match.llink.getmatchdisp() if match.llink else "")
+    font = ImageFont.truetype("/usr/share/fonts/TTF/DejaVuSans.ttf",18)
+    d.font = font
+    d.text((0, 28), match.getmatchdisp()+wt+lt)
+    return img
 
 def drawbracket(bracket):
     br = bracket
@@ -49,10 +77,25 @@ def drawbracket(bracket):
         br = nb
     return img
 
+def firstgf(match):
+    m = match
+    while not m.isspecial():
+        m = m.wlink
+    return m
+
+def drawfinals(brackets):
+    gfs = [firstgf(brackets[r][0]) for r in range(len(brackets)-2,-1, -1)]
+    img = Image.new('RGBA',(30+(len(gfs)*250), 120),color=(0,0,0))
+    xpos = 20
+    for gf in gfs:
+        im = drawspmatch(gf)
+        img.paste(im, (xpos, 20))
+        xpos += 220
+    return img
 
 if __name__ == '__main__':
     import data
-    i = 16
+    i = 32
     plist = (['player %s ' % x for x in range(0,i)])
     b = data.genm(plist)
     l = data.genl(b)
@@ -63,7 +106,9 @@ if __name__ == '__main__':
     img = drawbracket(b)
     im2g = drawbracket(l)
     im3g = drawbracket(l2)
-    img.show()
-    im2g.show()
-    im3g.show()
+    imfg = drawfinals([b,l,l2])
+    img.save("winners.png")
+    im2g.save("losers.png")
+    im3g.save("losers2x.png")
+    imfg.save("finals.png")
 

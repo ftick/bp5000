@@ -290,7 +290,7 @@ def fbracket(brackets):
     # make gfs, matches that break the laws of multi elim format
     for r in range(0, len(brackets)-1):
         b = len(brackets) - r - 1
-        gf = SpecialMatch("G", r+2, r+1)
+        gf = SpecialMatch(r+2, r+1, "G")
         lower = finalm(brackets[b][0])
         upper = finalm(brackets[b-1][0])
         lower.wlink = gf
