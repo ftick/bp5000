@@ -52,16 +52,18 @@ def drawbracket(bracket):
 
 if __name__ == '__main__':
     import data
-    i = 32
+    i = 16
     plist = (['player %s ' % x for x in range(0,i)])
     b = data.genm(plist)
     l = data.genl(b)
     l2 = data.genl(l)
+    data.fbracket([b,l,l2])
     import bracketfuncs
     bracketfuncs.projected([b, l, l2])
     img = drawbracket(b)
     im2g = drawbracket(l)
     im3g = drawbracket(l2)
+    img.show()
     im2g.show()
     im3g.show()
 

@@ -283,9 +283,11 @@ def fbracket(brackets):
     (ie grand finals in a double elim bracket)
     '''
     # make finals of brackets
-    for r in range(1, len(brackets)):
-        f2b(brackets[r-1], brackets[r])
+    for i in range(len(brackets), 0, -1):
+        for r in range(i, len(brackets)):
+            f2b(brackets[r-1], brackets[r])
     
+    # make gfs, matches that break the laws of multi elim format
     for r in range(0, len(brackets)-1):
         b = len(brackets) - r - 1
         gf = SpecialMatch("G", r+2, r+1)
