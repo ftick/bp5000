@@ -26,7 +26,12 @@ def drawmatch(match):
 
 def drawbracket(bracket):
     br = bracket
-    img = Image.new('RGBA',(250+int(220*math.log(len(bracket))/math.log(2)), len(br)*120),color=(0,0,0))
+    tm = br[0]
+    rounds = 0
+    while(not tm.wlink is None and not tm.wlink.isspecial()):
+        tm = tm.wlink
+        rounds += 1
+    img = Image.new('RGBA',(250+int(220*rounds), len(br)*120),color=(0,0,0))
     x = 30
     ymult = 1
     while(br[0] is not None):
@@ -40,17 +45,23 @@ def drawbracket(bracket):
             if not (ma.wlink in nb):
                 nb.append(ma.wlink)
         x += 220
-        ymult = ymult*2
+        ymult = ymult*int(len(br)/len(nb))
         br = nb
     return img
 
 
 if __name__ == '__main__':
     import data
-    i = 128
+    i = 32
     plist = (['player %s ' % x for x in range(0,i)])
     b = data.genm(plist)
-    data.genl(b)
+    l = data.genl(b)
+    l2 = data.genl(l)
+    import bracketfuncs
+    bracketfuncs.projected([b, l, l2])
     img = drawbracket(b)
-    img.show()
+    im2g = drawbracket(l)
+    im3g = drawbracket(l2)
+    im2g.show()
+    im3g.show()
 

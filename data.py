@@ -184,6 +184,7 @@ def genl(matches):
     lblist = []
     cwb = matches
     cwbo = matches
+    #import pdb; pdb.set_trace()
     while(len(cwb) == len(cwbo)):
         if(cwb != []):
             cwbo = cwb
@@ -194,20 +195,24 @@ def genl(matches):
             cwbo[i*2+1].llink = n
             lblist.append(n)
         # add all unique winners of cwbo to cwb
+        # (advance to next round)
         for r in range(0, len(cwbo)):
             if not (cwbo[r].wlink in cwb):
                 cwb.append(cwbo[r].wlink)
 
 
-    cwb = []
-    for r in range(0, len(matches)):
-        if matches[r].wlink in cwb:
-            pass
-        else:
-            cwb.append(matches[r].wlink)
+    #cwb = []
+    #for r in range(0, len(matches)):
+    #    if matches[r].wlink in cwb:
+    #        pass
+    #    else:
+    #        cwb.append(matches[r].wlink)
     # new wb should be half size as old.
     # if it is the same, need to 
     clb = lblist
+    #for m23 in lblist:
+    #    if (not m23.wlink is None) and (not m23.wlink in clb):
+    #        clb.append(m23)
     while(len(clb) > 1):
         # 2 cases. either winners bracket players
         # come into losers too play or losers bracket
