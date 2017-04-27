@@ -48,7 +48,10 @@ class Match:
             print("error no winner")
             return
         if(self.wlink):
-            self.wlink.addpart(part)
+            if self.wlink.isspecial():
+                self.wlink.addpart(part, self.upper)
+            else:
+                self.wlink.addpart(part)
         if(self.llink):
             self.llink.addpart(loser)
         else:
@@ -76,6 +79,15 @@ class Match:
         return self.wlink.itwlink(num-1)
     def getmatchdisp(self):
         return "M"+str(self.uniqueid)
+    def isspecial(self):
+        return False
+
+#
+# Steps to create a bracket:
+# b = genm / gen to create initial
+# then genl(b) to create losers brackets (repeat for more)
+# then fbracket([w, l, 2l, 3l ...]) to finalize bracket
+#
 
 def genm(players):
     # Generates a winners bracket from a list
@@ -224,6 +236,62 @@ def genl(matches):
         clb = nlb
     return lblist
 
+def finalm(m):
+    while not (None is m.wlink):
+        m = m.wlink
+    return m
 
+class SpecialMatch(Match):
+    ''' A Special match for grand final type sets
+    where people play multiple times
+    NOTE: upper player is p1, lower is p2
+    '''
+    def __init__(self, upperleft=None, lowerleft=None, data=None):
+        self.llink = None
+        self.wlink = None
+        self.data = data
+        self.upperleft = upperleft
+        self.lowerleft = lowerleft
+        self.part1 = None
+        self.part2 = None
+        self.winner = 0
+        global uid
+        self.uniqueid = uid
+        uid += 1
 
+    def addpart(self, part, upper):
+        if (upper):
+            self.part1 = part
+        else:
+            self.part2 = part
+    def setwinner(self, part, setsleft):
+        if self.wlink:
+            self.addpart(part, False)
+            self.wlink.lowerleft = setsleft
+        #assignplacing (otherpart)
+    def isspecial(self):
+        return True
 
+def fbracket(brackets):
+    '''
+    finalize bracket. this links brackets together
+    (ie grand finals in a double elim bracket)
+    '''
+    # make finals of brackets
+    for r in range(1, len(brackets)):
+        f2b(brackets[r-1], brackets[r])
+    
+    for r in range(0, len(brackets)-1):
+        b = len(brackets) - r - 1
+        gf = SpecialMatch("G", r+2, r+1)
+        lower = finalm(brackets[b][0])
+        upper = finalm(brackets[b-1][0])
+        lower.wlink = gf
+        upper.wlink = gf
+        upper.upper = True
+        lower.upper = False
+
+def f2b(b1, b2):
+    nmatch = Match("F")
+    finalm(b1[0]).llink = nmatch
+    finalm(b2[0]).wlink = nmatch
