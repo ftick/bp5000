@@ -88,6 +88,12 @@ class Match:
 # then genl(b) to create losers brackets (repeat for more)
 # then fbracket([w, l, 2l, 3l ...]) to finalize bracket
 #
+def create(plist, elim):
+    brackets = [genm(plist)]
+    for i in range(1, elim):
+        brackets.append(genl(brackets[-1]))
+    fbracket(brackets)
+    return brackets
 
 def genm(players):
     # Generates a winners bracket from a list

@@ -1,4 +1,5 @@
 import wx
+import data
 #
 # Tested with wx version 3 and python 2.7
 #
@@ -72,10 +73,33 @@ class MFrame(wx.Frame):
 
 class ManagementPage(wx.Panel):
     def __init__(self, parent, name="tournament", elim="2"):
+        self.elim = elim
+        self.name = name
+        self.parent = parent
         wx.Panel.__init__(self, parent)
         wx.StaticText(self, pos=(20, 30), label="Entrants List (Ordered by seed), 1 per line")
-        elist = wx.TextCtrl(self, pos=(20, 60), size = (500, 500), style = wx.TE_MULTILINE)
+        self.elist = wx.TextCtrl(self, pos=(20, 60), size = (500, 500), style = wx.TE_MULTILINE)
         updatebtn = wx.Button(self, label='Update', pos=(840, 540))
+        self.Bind(wx.EVT_BUTTON, self.update, updatebtn)
+
+    def update(self, e):
+        brackets = data.create(self.elist.GetValue().split(), int(self.elim))
+        i = -1
+        for b in brackets:
+            i += 1
+            page = BracketPage(self.parent, b)
+            ename = "%sx LB" % i
+            if i == 0:
+                ename = "WB"
+            if i == 1:
+                ename = "LB"
+            self.parent.AddPage(page, self.name +": "+ ename)
+
+
+class BracketPage(wx.Panel):
+    def __init__(self, parent, bracket):
+        self.bracket = bracket
+        wx.Panel.__init__(self, parent)
 
 a = wx.App()
 MFrame(None)
