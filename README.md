@@ -1,12 +1,17 @@
-## Bracket Program 5000
+# Bracket Program 5000
 A tournament bracket software supporting arbitrary high elimination.
 meaning it supports triple elimination, quad elim etc as well as single & double.
 
-# Dependencies
+### Dependencies
 Python==3.6.1
+
 wxPython==4.0.0a2
+
 Pillow==4.1.0
+
 Other versions may work but are untested.
+
+### Screenshots
 
 An example 32-player triple elimination bracket
 
