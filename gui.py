@@ -1,5 +1,6 @@
 import wx
 import data
+import grf
 #
 # Tested with wx version 3 and python 2.7
 #
@@ -84,6 +85,11 @@ class ManagementPage(wx.Panel):
 
     def update(self, e):
         brackets = data.create(self.elist.GetValue().split(), int(self.elim))
+        if type(brackets) == type(""):
+            w = wx.MessageDialog(self.parent, "Need more entrants for that # of elims", "Error", wx.OK)
+            w.ShowModal()
+            w.Destroy()
+            return
         i = -1
         for b in brackets:
             i += 1
@@ -100,8 +106,19 @@ class BracketPage(wx.Panel):
     def __init__(self, parent, bracket):
         self.bracket = bracket
         wx.Panel.__init__(self, parent)
+        self.br = wx.StaticBitmap(self, wx.ID_ANY, wx.BitmapFromImage(piltowx(grf.drawbracket(bracket))))
+
+def piltowx(pil):
+    wxi = wx.EmptyImage(*pil.size)
+    pilCopy = pil.copy()
+    pilCopyRGB = pilCopy.convert('RGB')
+    pilRgbData = pilCopyRGB.tobytes()
+    wxi.SetData(pilRgbData)
+
+    return wxi
 
 a = wx.App()
 MFrame(None)
 a.MainLoop()
+
 

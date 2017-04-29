@@ -89,6 +89,23 @@ class Match:
 # then fbracket([w, l, 2l, 3l ...]) to finalize bracket
 #
 def create(plist, elim):
+    l = len(plist)
+    # bad metric, actually the elim can be higher (usually)
+    # but good enough for now. TODO improve
+    #
+    # see plot log2(x) > y
+    # elimination | min entrants
+    # 1 | 2
+    # 2 | 4
+    # 3 | 8
+    # 4 | 16
+    # 5 | 32
+    # 6 | 64
+    # 7 | 128
+    # 8 | 256
+    #
+    if (math.log(l)/math.log(2.0)) < elim:
+        return "Elimination # too high for # of players"
     brackets = [genm(plist)]
     for i in range(1, elim):
         brackets.append(genl(brackets[-1]))
