@@ -109,6 +109,9 @@ class BracketPage(wx.Panel):
         self.oldy = None
         self.x = 0
         self.y = 0
+        self.bx = 0
+        self.by = 0
+        self.extimg = None
         wx.Panel.__init__(self, parent)
         self.updatebracketimg()
         #self.br = wx.StaticBitmap(self, wx.ID_ANY, wx.BitmapFromImage(piltowx(grf.drawbracket(bracket))))
@@ -127,17 +130,21 @@ class BracketPage(wx.Panel):
         else:
             bx = int(.5*(self.GetSize()[0] - self.img.GetWidth()))
             self.x = 0
+            self.bx = bx
         if self.img.GetHeight() > self.GetSize()[1]:
             if self.y + self.GetSize()[1] > self.img.GetHeight():
                 self.y = self.img.GetHeight() - self.GetSize()[1]
         else:
             by = int(.5*(self.GetSize()[1] - self.img.GetHeight()))
             self.y = 0
+            self.by = by
         sub = wx.Rect(self.x, self.y, w, h)
         print(sub)
         #import pdb; pdb.set_trace()
         bimg = wx.BitmapFromImage(self.img.GetSubImage(sub))
         dc.DrawBitmap(bimg, bx, by)
+        if self.extimg:
+            dc.DrawBitmap(wx.BitmapFromImage(piltowx(self.extimg[0])), self.extimg[1]-self.x+self.bx, self.extimg[2]-self.y+self.bx)
 
     def mouse(self, ev):
         x, y = (ev.GetX(), ev.GetY())
@@ -158,6 +165,10 @@ class BracketPage(wx.Panel):
         else:
             self.oldx = None
             self.oldy = None
+        old = self.extimg
+        self.extimg = grf.mouse_ev(self.x+x-self.bx,self.y+y-self.by,self.bracket)
+        if old != self.extimg:
+            self.Refresh()
 
     def updatebracketimg(self):
         self.img = piltowx(grf.drawbracket(self.bracket))

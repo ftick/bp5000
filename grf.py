@@ -4,12 +4,12 @@
 from PIL import Image, ImageDraw, ImageFont
 import math
 
-def drawmatch(match):
+def drawmatch(match, highlight = False):
     str1 = match.part1.tag if match.part1 else "TBD"
     int1 = match.part1.seed if match.part1 else ""
     str2 = match.part2.tag if match.part2 else "TBD"
     int2 = match.part2.seed if match.part2 else ""
-    img = Image.new('RGBA',(200,80),color=(155,155,255))
+    img = Image.new('RGBA',(200,80),color=((155,155,255) if not highlight else (255, 155, 155)))
     d = ImageDraw.Draw(img)
     font = ImageFont.truetype("/usr/share/fonts/TTF/DejaVuSans.ttf",20)
     d.font = font
@@ -52,6 +52,28 @@ def drawspmatch(match):
     d.text((0, 28), match.getmatchdisp()+wt+lt)
     return img
 
+def mouse_ev(xm, ym, bracket):
+    br = bracket
+    x = 30
+    ymult = 1
+    while(br[0] is not None):
+        nb = []
+        y = 30 + (ymult-1)*60
+        for ma in br:
+            rect = (x, y, 200, 80)
+            #print((xm, ym), rect)
+            if intersect((xm,ym),rect):
+                return (drawmatch(ma, True), x, y)
+            y += 120*ymult
+            if not (ma.wlink in nb):
+                nb.append(ma.wlink)
+        x += 220
+        ymult = ymult*int(len(br)/len(nb))
+        br = nb
+    return None
+
+def intersect(pt, rect):
+    return (rect[0] <= pt[0] <= rect[0]+rect[2]) and (rect[1] <= pt[1] <= rect[1]+rect[3])
 def drawbracket(bracket):
     br = bracket
     tm = br[0]
@@ -64,7 +86,6 @@ def drawbracket(bracket):
     ymult = 1
     while(br[0] is not None):
         nb = []
-        print(br)
         y = 30 + (ymult-1)*60
         for ma in br:
             im = drawmatch(ma)
