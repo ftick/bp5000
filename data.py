@@ -16,6 +16,8 @@ class Participant:
         return str(self)
     def __str__(self):
         return str(self.seed)+": "+self.tag
+    def isbye(self):
+        return self.uniqueid == 0
 
 class Match:
     def __init__(self, data=None):
@@ -33,7 +35,19 @@ class Match:
         if (self.part1 == None):
             self.part1 = part
         elif self.part2 == None:
+            if self.part1.isbye():
+                self.part2 = part
+                self.setwinner(self.part2)
+                return
+            if part.isbye():
+                self.part2 = part
+                self.setwinner(self.part1)
+                return
             self.part2 = part
+            if self.part2.seed < self.part1.seed:
+                self.part2 = self.part1
+                self.part1 = part
+                
         else:
             print("match has 2 participants")
     def setwinner(self, part):
@@ -110,7 +124,15 @@ def create(plist, elim):
     for i in range(1, elim):
         brackets.append(genl(brackets[-1]))
     fbracket(brackets)
+    progbyes(brackets[0])
     return brackets
+
+def progbyes(br):
+    for m in br:
+        if m.part1.isbye():
+            m.setwinner(m.part2)
+        elif m.part2.isbye():
+            m.setwinner(m.part1)
 
 def genm(players):
     # Generates a winners bracket from a list

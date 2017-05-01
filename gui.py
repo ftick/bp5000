@@ -35,7 +35,10 @@ class MFrame(wx.Frame):
         
         p = wx.Panel(self)
         self.nb = wx.Notebook(p)
-
+        def pagechanged(event):
+            if type(self.nb.GetPage(event.GetSelection())) == BracketPage:
+                self.nb.GetPage(event.GetSelection()).updatebracketimg()
+        self.nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, pagechanged)
         sz = wx.BoxSizer()
         sz.Add(self.nb, 1, wx.EXPAND)
         p.SetSizer(sz)
@@ -102,6 +105,7 @@ class ManagementPage(wx.Panel):
             self.parent.AddPage(page, self.name +": "+ ename)
 
 
+
 class BracketPage(wx.Panel):
     def __init__(self, parent, bracket):
         self.bracket = bracket
@@ -113,7 +117,7 @@ class BracketPage(wx.Panel):
         self.by = 0
         self.extimg = None
         wx.Panel.__init__(self, parent)
-        self.updatebracketimg()
+        self.img = piltowx(grf.drawbracket(self.bracket))
         #self.br = wx.StaticBitmap(self, wx.ID_ANY, wx.BitmapFromImage(piltowx(grf.drawbracket(bracket))))
         self.Bind(wx.EVT_PAINT, self.paint)
         self.Bind(wx.EVT_MOUSE_EVENTS, self.mouse)
@@ -127,6 +131,7 @@ class BracketPage(wx.Panel):
         if self.img.GetWidth() > self.GetSize()[0]:
             if self.x + self.GetSize()[0] > self.img.GetWidth():
                 self.x = self.img.GetWidth() - self.GetSize()[0]
+            self.bx = 0
         else:
             bx = int(.5*(self.GetSize()[0] - self.img.GetWidth()))
             self.x = 0
@@ -134,24 +139,25 @@ class BracketPage(wx.Panel):
         if self.img.GetHeight() > self.GetSize()[1]:
             if self.y + self.GetSize()[1] > self.img.GetHeight():
                 self.y = self.img.GetHeight() - self.GetSize()[1]
+            self.by = 0
         else:
             by = int(.5*(self.GetSize()[1] - self.img.GetHeight()))
             self.y = 0
             self.by = by
         sub = wx.Rect(self.x, self.y, w, h)
-        print(sub)
-        #import pdb; pdb.set_trace()
         bimg = wx.BitmapFromImage(self.img.GetSubImage(sub))
         dc.DrawBitmap(bimg, bx, by)
         if self.extimg:
-            dc.DrawBitmap(wx.BitmapFromImage(piltowx(self.extimg[0])), self.extimg[1]-self.x+self.bx, self.extimg[2]-self.y+self.bx)
+            dc.DrawBitmap(wx.BitmapFromImage(piltowx(self.extimg[0])), self.extimg[1]-self.x+self.bx, self.extimg[2]-self.y+self.by)
 
     def mouse(self, ev):
+        comp = False
         x, y = (ev.GetX(), ev.GetY())
         if(ev.LeftIsDown()):
             if self.oldx is None:
                 self.oldx = x
                 self.oldy = y
+                self.extimgc = self.extimg
                 return
             self.x = self.x - (x - self.oldx)
             self.y = self.y - (y - self.oldy)
@@ -163,24 +169,47 @@ class BracketPage(wx.Panel):
                 self.y = 0
             self.Refresh()
         else:
+            if not (self.oldx is None):
+                comp = True
             self.oldx = None
             self.oldy = None
         old = self.extimg
         self.extimg = grf.mouse_ev(self.x+x-self.bx,self.y+y-self.by,self.bracket)
         if old != self.extimg:
             self.Refresh()
+        if comp and (not self.extimg is None) and self.extimg == self.extimgc:
+            m = grf.mouse_ev(self.x+x-self.bx, self.y+y-self.by, self.bracket, True)
+            if m.part1 and m.part2:
+                MatchDialog(self, m)
+            
 
     def updatebracketimg(self):
         self.img = piltowx(grf.drawbracket(self.bracket))
+        self.Refresh()
     
-
+class MatchDialog(wx.Dialog):
+    def __init__(self, parent, match):
+        self.match = match
+        self.parent = parent
+        wx.Dialog.__init__(self, parent)
+        w1 = wx.Button(self, label=str(match.part1), pos=(30, 20))
+        w2 = wx.Button(self, label=str(match.part2), pos=(120, 20))
+        def winner1(e):
+            self.match.setwinner(self.match.part1)
+            self.parent.updatebracketimg()
+            self.Close()
+        def winner2(e):
+            self.match.setwinner(self.match.part2)
+            self.parent.updatebracketimg()
+            self.Close()
+        self.Bind(wx.EVT_BUTTON, winner1, w1)
+        self.Bind(wx.EVT_BUTTON, winner2, w2)
+        self.SetSize((300,150))
+        self.SetTitle("Report Scores")
+        self.Show()
 def piltowx(pil):
     wxi = wx.EmptyImage(*pil.size)
-    pilCopy = pil.copy()
-    pilCopyRGB = pilCopy.convert('RGB')
-    pilRgbData = pilCopyRGB.tobytes()
-    wxi.SetData(pilRgbData)
-
+    wxi.SetData(pil.copy().convert('RGB').tobytes())
     return wxi
 
 a = wx.App()

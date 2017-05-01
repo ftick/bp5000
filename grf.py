@@ -52,7 +52,7 @@ def drawspmatch(match):
     d.text((0, 28), match.getmatchdisp()+wt+lt)
     return img
 
-def mouse_ev(xm, ym, bracket):
+def mouse_ev(xm, ym, bracket, retm = False):
     br = bracket
     x = 30
     ymult = 1
@@ -62,8 +62,8 @@ def mouse_ev(xm, ym, bracket):
         for ma in br:
             rect = (x, y, 200, 80)
             #print((xm, ym), rect)
-            if intersect((xm,ym),rect):
-                return (drawmatch(ma, True), x, y)
+            if intersect((xm,ym),rect) and (not ma.isspecial()):
+                return ma if retm else (drawmatch(ma, True), x, y)
             y += 120*ymult
             if not (ma.wlink in nb):
                 nb.append(ma.wlink)
