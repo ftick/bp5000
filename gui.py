@@ -192,8 +192,10 @@ class MatchDialog(wx.Dialog):
         self.match = match
         self.parent = parent
         wx.Dialog.__init__(self, parent)
-        w1 = wx.Button(self, label=str(match.part1), pos=(30, 20))
-        w2 = wx.Button(self, label=str(match.part2), pos=(120, 20))
+        lbl = wx.StaticText(self, label="Pick the Winner of the Match", pos=(30,10))
+        w1 = wx.Button(self, label=str(match.part1), pos=(30, 30))
+        w2 = wx.Button(self, label=str(match.part2), pos=(180, 30))
+        nw = wx.Button(self, label="no result", pos=(100, 74))
         def winner1(e):
             self.match.setwinner(self.match.part1)
             self.parent.updatebracketimg()
@@ -202,8 +204,13 @@ class MatchDialog(wx.Dialog):
             self.match.setwinner(self.match.part2)
             self.parent.updatebracketimg()
             self.Close()
+        def nowinner(e):
+            self.match.settbd()
+            self.parent.updatebracketimg()
+            self.Close()
         self.Bind(wx.EVT_BUTTON, winner1, w1)
         self.Bind(wx.EVT_BUTTON, winner2, w2)
+        self.Bind(wx.EVT_BUTTON, nowinner, nw)
         self.SetSize((300,150))
         self.SetTitle("Report Scores")
         self.Show()

@@ -51,6 +51,8 @@ class Match:
         else:
             print("match has 2 participants")
     def setwinner(self, part):
+        if (self.winner != 0):
+            self.settbd()
         loser = None
         if(part == self.part1):
             self.winner = 1
@@ -71,6 +73,24 @@ class Match:
         else:
             #TODO: assign loser a placing.
             pass
+        
+    def settbd(self):
+        w = self.part1 if self.winner == 1 else self.part2
+        l = self.part1 if self.winner == 2 else self.part2
+        self.winner = 0
+        if self.wlink:
+            self.wlink.settbd()
+            if self.wlink.part1 == w:
+                self.wlink.part1 = None
+            elif self.wlink.part2 == w:
+                self.wlink.part2 = None
+        if self.llink:
+            self.llink.settbd()
+            if self.llink.part1 == l:
+                self.llink.part1 = None
+            elif self.llink.part2 == l:
+                self.llink.part2 = None
+        
         
     def u(self):
         return str(self.uniqueid)
