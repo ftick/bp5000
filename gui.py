@@ -81,9 +81,14 @@ class ManagementPage(wx.Panel):
         self.name = name
         self.parent = parent
         wx.Panel.__init__(self, parent)
-        wx.StaticText(self, pos=(20, 30), label="Entrants List (Ordered by seed), 1 per line")
-        self.elist = wx.TextCtrl(self, pos=(20, 60), size = (500, 500), style = wx.TE_MULTILINE)
-        updatebtn = wx.Button(self, label='Update', pos=(840, 540))
+        self.hsplit = wx.BoxSizer(wx.HORIZONTAL)
+        self.opanel = wx.Panel(self)
+        wx.StaticText(self.opanel, label="Entrants List (Ordered by seed), 1 per line")
+        self.elist = wx.TextCtrl(self, style = wx.TE_MULTILINE)
+        updatebtn = wx.Button(self.opanel, pos=(40,80), label='Update')
+        self.hsplit.Add(self.elist, 1, wx.ALIGN_LEFT| wx.EXPAND)
+        self.hsplit.Add(self.opanel, 1, wx.ALIGN_RIGHT|wx.EXPAND)
+        self.SetSizer(self.hsplit)
         self.Bind(wx.EVT_BUTTON, self.update, updatebtn)
 
     def update(self, e):
