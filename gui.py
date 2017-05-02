@@ -86,13 +86,15 @@ class ManagementPage(wx.Panel):
         wx.StaticText(self.opanel, label="Entrants List (Ordered by seed), 1 per line")
         self.elist = wx.TextCtrl(self, style = wx.TE_MULTILINE)
         updatebtn = wx.Button(self.opanel, pos=(40,80), label='Update')
+        genbtn = wx.Button(self.opanel, pos= (40, 150), label='Generate player list')
         self.hsplit.Add(self.elist, 1, wx.ALIGN_LEFT| wx.EXPAND)
         self.hsplit.Add(self.opanel, 1, wx.ALIGN_RIGHT|wx.EXPAND)
         self.SetSizer(self.hsplit)
         self.Bind(wx.EVT_BUTTON, self.update, updatebtn)
+        self.Bind(wx.EVT_BUTTON, self.gen, genbtn)
 
     def update(self, e):
-        brackets = data.create(self.elist.GetValue().split(), int(self.elim))
+        brackets = data.create(self.elist.GetValue().split("\n"), int(self.elim))
         if type(brackets) == type(""):
             w = wx.MessageDialog(self.parent, "Need more entrants for that # of elims", "Error", wx.OK)
             w.ShowModal()
@@ -108,8 +110,29 @@ class ManagementPage(wx.Panel):
             if i == 1:
                 ename = "LB"
             self.parent.AddPage(page, self.name +": "+ ename)
-
-
+    
+    def gen(self, e):
+        h = 220
+        d = wx.Dialog(None)
+        sc = wx.SpinCtrl(d, pos= (160,10), size=(70,40), min=4, initial=32, max=1024*8)
+        scl = wx.StaticText(d, pos= (10,17), label="# of Players")
+        name = wx.TextCtrl(d, pos= (20, 74), value="Player #", size=(190,40))
+        namel = wx.StaticText(d, pos=(20, 57), label="Player Template")
+        okbtn = wx.Button(d, label='OK', pos=(30, h-70))
+        def newev(e):
+            d.Close()
+            bstr = ""
+            for i in range(1, sc.GetValue()+1):
+                bstr += name.GetValue().replace("#",str(i)) + "\n"
+            self.elist.SetValue(bstr)
+        d.Bind(wx.EVT_BUTTON, newev, okbtn)
+        cancelbtn = wx.Button(d, label='Cancel', pos=(150, h-70))
+        def c(e):
+            d.Close()
+        d.Bind(wx.EVT_BUTTON, c, cancelbtn)
+        d.SetSize((250,h))
+        d.SetTitle("Create new")
+        d.Show(True)
 
 class BracketPage(wx.Panel):
     def __init__(self, parent, bracket):
