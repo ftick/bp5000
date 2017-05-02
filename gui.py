@@ -110,6 +110,7 @@ class ManagementPage(wx.Panel):
             if i == 1:
                 ename = "LB"
             self.parent.AddPage(page, self.name +": "+ ename)
+        self.parent.AddPage(FinalPage(self.parent, brackets), self.name+ ": Finals")
     
     def gen(self, e):
         h = 220
@@ -145,7 +146,7 @@ class BracketPage(wx.Panel):
         self.by = 0
         self.extimg = None
         wx.Panel.__init__(self, parent)
-        self.img = piltowx(grf.drawbracket(self.bracket))
+        self.updatebracketimg()
         #self.br = wx.StaticBitmap(self, wx.ID_ANY, wx.BitmapFromImage(piltowx(grf.drawbracket(bracket))))
         self.Bind(wx.EVT_PAINT, self.paint)
         self.Bind(wx.EVT_MOUSE_EVENTS, self.mouse)
@@ -213,6 +214,11 @@ class BracketPage(wx.Panel):
 
     def updatebracketimg(self):
         self.img = piltowx(grf.drawbracket(self.bracket))
+        self.Refresh()
+
+class FinalPage(BracketPage):
+    def updatebracketimg(self):
+        self.img = piltowx(grf.drawfinals(self.bracket))
         self.Refresh()
     
 class MatchDialog(wx.Dialog):

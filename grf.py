@@ -28,12 +28,12 @@ def drawmatch(match, highlight = False):
     d.text((0, 28), match.getmatchdisp()+wt+lt)
     return img
 
-def drawspmatch(match):
+def drawspmatch(match, highlight=False):
     str1 = match.part1.tag if match.part1 else "TBD"
     int1 = match.part1.seed if match.part1 else ""
     str2 = match.part2.tag if match.part2 else "TBD"
     int2 = match.part2.seed if match.part2 else ""
-    img = Image.new('RGBA',(200,80),color=(155,155,255))
+    img = Image.new('RGBA',(200,80),color=((155,155,255) if not highlight else (255, 155, 155)))
     d = ImageDraw.Draw(img)
     font = ImageFont.truetype("/usr/share/fonts/TTF/DejaVuSans.ttf",20)
     d.font = font
@@ -53,6 +53,8 @@ def drawspmatch(match):
     return img
 
 def mouse_ev(xm, ym, bracket, retm = False):
+    if type(bracket[0]) == type([1,3]):
+        return mouse_ev_finals(xm, ym, bracket, retm)
     br = bracket
     x = 30
     ymult = 1
@@ -70,6 +72,16 @@ def mouse_ev(xm, ym, bracket, retm = False):
         x += 220
         ymult = ymult*int(len(br)/len(nb))
         br = nb
+    return None
+
+def mouse_ev_finals(xm, ym, brackets, retm):
+    gfs = [firstgf(brackets[r][0]) for r in range(len(brackets)-2,-1, -1)]
+    xpos = 20
+    for gf in gfs:
+        rect = (xpos, 20, 200, 80)
+        if intersect((xm,ym), rect):
+            return gf if retm else (drawspmatch(gf, True), xpos, 20)
+        xpos += 220
     return None
 
 def intersect(pt, rect):
