@@ -94,7 +94,10 @@ class ManagementPage(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.gen, genbtn)
 
     def update(self, e):
-        brackets = data.create(self.elist.GetValue().split("\n"), int(self.elim))
+        players = self.elist.GetValue().split("\n")
+        if (players[-1] == ''):
+            players = players[:-1]
+        brackets = data.create(players, int(self.elim))
         if type(brackets) == type(""):
             w = wx.MessageDialog(self.parent, "Need more entrants for that # of elims", "Error", wx.OK)
             w.ShowModal()
