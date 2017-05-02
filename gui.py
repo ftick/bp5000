@@ -36,7 +36,7 @@ class MFrame(wx.Frame):
         p = wx.Panel(self)
         self.nb = wx.Notebook(p)
         def pagechanged(event):
-            if type(self.nb.GetPage(event.GetSelection())) == BracketPage:
+            if isinstance((self.nb.GetPage(event.GetSelection())), BracketPage):
                 self.nb.GetPage(event.GetSelection()).updatebracketimg()
         self.nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, pagechanged)
         sz = wx.BoxSizer()
@@ -209,7 +209,10 @@ class BracketPage(wx.Panel):
         if comp and (not self.extimg is None) and self.extimg == self.extimgc:
             m = grf.mouse_ev(self.x+x-self.bx, self.y+y-self.by, self.bracket, True)
             if m.part1 and m.part2:
-                MatchDialog(self, m)
+                if m.isspecial():
+                    SpecMatchDialog(self, m)
+                else:
+                    MatchDialog(self, m)
             
 
     def updatebracketimg(self):
@@ -223,31 +226,72 @@ class FinalPage(BracketPage):
     
 class MatchDialog(wx.Dialog):
     def __init__(self, parent, match):
+
         self.match = match
         self.parent = parent
         wx.Dialog.__init__(self, parent)
-        lbl = wx.StaticText(self, label="Pick the Winner of the Match", pos=(30,10))
-        w1 = wx.Button(self, label=str(match.part1), pos=(30, 30))
-        w2 = wx.Button(self, label=str(match.part2), pos=(180, 30))
-        nw = wx.Button(self, label="no result", pos=(100, 74))
-        def winner1(e):
-            self.match.setwinner(self.match.part1)
-            self.parent.updatebracketimg()
-            self.Close()
-        def winner2(e):
-            self.match.setwinner(self.match.part2)
-            self.parent.updatebracketimg()
-            self.Close()
+        self.vsplit = wx.BoxSizer(wx.VERTICAL)
+        self.ptop = wx.Panel(self)
+        self.pbot = wx.Panel(self)
+        pan = ScoresPanel(self.ptop, match, self)
+        nw = wx.Button(self.pbot, label="no result", pos=(100, 15))
+        self.vsplit.Add(self.ptop, 1, wx.ALIGN_TOP| wx.EXPAND)
+        self.vsplit.Add(self.pbot, 1, wx.ALIGN_BOTTOM|wx.EXPAND)
+        self.SetSizer(self.vsplit)
         def nowinner(e):
             self.match.settbd()
             self.parent.updatebracketimg()
             self.Close()
-        self.Bind(wx.EVT_BUTTON, winner1, w1)
-        self.Bind(wx.EVT_BUTTON, winner2, w2)
+
         self.Bind(wx.EVT_BUTTON, nowinner, nw)
         self.SetSize((300,150))
         self.SetTitle("Report Scores")
         self.Show()
+    def winner1(self, e):
+        self.match.setwinner(self.match.part1)
+        self.parent.updatebracketimg()
+        self.Close()
+    def winner2(self, e):
+        self.match.setwinner(self.match.part2)
+        self.parent.updatebracketimg()
+        self.Close()
+
+class SpecMatchDialog(MatchDialog):
+    def winner1(self, e):
+        self.match.lowerleft = self.match.lowerleft - 1
+        if self.match.lowerleft == 0:
+            self.match.setwinner(self.match.part1, self.match.upperleft)
+            self.parent.updatebracketimg()
+            self.Close()
+        else:
+            self.addpanel()
+    def winner2(self, e):
+        self.match.upperleft = self.match.upperleft - 1
+        if self.match.upperleft == 0:
+            self.match.setwinner(self.match.part2, self.match.lowerleft)
+            self.parent.updatebracketimg()
+            self.Close()
+        else:
+            self.addpanel()
+    
+    def addpanel(self):
+        if hasattr(self, "ypos"):
+            self.ypos += 70
+        else:
+            self.ypos = 70
+        pan0 = ScoresPanel(self.ptop, self.match, self, pos=(0,self.ypos))
+        self.SetSize((300, 150+self.ypos))
+
+class ScoresPanel(wx.Panel):
+    def __init__(self, parent, match, dilog, pos=(0,0)):
+        wx.Panel.__init__(self, parent, pos=pos, size=(300, 60))
+        lbl = wx.StaticText(self, label="Pick the Winner of the Match", pos=(30,0))
+        w1 = wx.Button(self, label=str(match.part1), pos=(30, 20))
+        w2 = wx.Button(self, label=str(match.part2), pos=(180, 20))
+
+        self.Bind(wx.EVT_BUTTON, dilog.winner1, w1)
+        self.Bind(wx.EVT_BUTTON, dilog.winner2, w2)
+
 def piltowx(pil):
     wxi = wx.EmptyImage(*pil.size)
     wxi.SetData(pil.copy().convert('RGB').tobytes())
