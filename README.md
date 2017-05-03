@@ -2,6 +2,22 @@
 A tournament bracket software supporting arbitrary high elimination.
 meaning it supports triple elimination, quad elim etc as well as single & double.
 
+### What it does
+ - bracket generation and viewing
+ - supports arbitrarily high elimination
+ - match reporting
+ 
+### What it doesn't do (yet)
+ - projected bracket by seed
+ - support for match scores (ex 3-1)
+ - player placing when bracket is complete
+ - bracket saving/loading
+ - reseeding players in losers to avoid rematches
+
+### What it will never do
+ - manage setups / timeslots etc.
+ - support other formats like round robin
+
 ### Dependencies
 Python==3.6.1
 
@@ -12,8 +28,11 @@ Pillow==4.1.0
 Other versions may work but are untested.
 
 ### Screenshots
+The gui
+![Gui](/docs/examples/gui.png?raw=true "GUI")
 
-An example 32-player triple elimination bracket
+
+full screenshots of a triple elimination bracket
 
 Winners Bracket
 ![Winners bracket](/docs/examples/winners.png?raw=true "Winners Bracket")
