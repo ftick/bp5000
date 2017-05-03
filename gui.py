@@ -1,4 +1,5 @@
 import wx
+import wx.lib.agw.flatnotebook as fnb
 import data
 import grf
 #
@@ -34,8 +35,10 @@ class MFrame(wx.Frame):
         self.SetMenuBar(menubar)
         
         p = wx.Panel(self)
-        self.nb = wx.Notebook(p)
+        self.nb = fnb.FlatNotebook(p, agwStyle=fnb.FNB_X_ON_TAB)
         def pagechanged(event):
+            col = wx.Colour(hash(self.nb.GetPage(event.GetSelection()).sname))
+            self.nb.SetActiveTabColour(col)
             if isinstance((self.nb.GetPage(event.GetSelection())), BracketPage):
                 self.nb.GetPage(event.GetSelection()).updatebracketimg()
         self.nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, pagechanged)
@@ -80,6 +83,7 @@ class ManagementPage(wx.Panel):
         self.elim = elim
         self.name = name
         self.parent = parent
+        self.sname = name
         wx.Panel.__init__(self, parent)
         self.hsplit = wx.BoxSizer(wx.HORIZONTAL)
         self.opanel = wx.Panel(self)
@@ -104,6 +108,7 @@ class ManagementPage(wx.Panel):
             w.Destroy()
             return
         i = -1
+
         for b in brackets:
             i += 1
             page = BracketPage(self.parent, b)
@@ -112,8 +117,12 @@ class ManagementPage(wx.Panel):
                 ename = "WB"
             if i == 1:
                 ename = "LB"
+            page.sname = self.name
             self.parent.AddPage(page, self.name +": "+ ename)
-        self.parent.AddPage(FinalPage(self.parent, brackets), self.name+ ": Finals")
+            
+        fb = FinalPage(self.parent, brackets)
+        fb.sname = self.name
+        self.parent.AddPage(fb, self.name+ ": Finals")
     
     def gen(self, e):
         h = 220
