@@ -46,6 +46,7 @@ class MFrame(wx.Frame):
         sz.Add(self.nb, 1, wx.EXPAND)
         p.SetSizer(sz)
 
+        self.Bind(wx.EVT_CLOSE, self.quit_event)
         self.SetSize((950, 650))
         self.SetTitle('BP5000')
         self.Centre()
@@ -74,7 +75,7 @@ class MFrame(wx.Frame):
         
     
     def quit_event(self, e):
-        self.Close()
+        self.Destroy()
         exit()
 
 
