@@ -138,7 +138,8 @@ def create(plist, elim):
     # 7 | 128
     # 8 | 256
     #
-    if (math.log(l)/math.log(2.0)) < elim:
+    rest = {1:4,2:4,3:8, 4:8, 5:16, 6: 16, 7:16, 8:32, 9:32, 10:32, 11:32, 12:32, 13:32,14:64, 15:64, 16:64}
+    if l < 129 and rest[elim] > l:
         return "Elimination # too high for # of players"
     brackets = [genm(plist)]
     for i in range(1, elim):
