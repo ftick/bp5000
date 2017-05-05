@@ -2,6 +2,7 @@ import wx
 import wx.lib.agw.flatnotebook as fnb
 import data
 import grf
+import bracketfuncs
 #
 # Tested with wx version 3 and python 2.7
 #
@@ -91,12 +92,15 @@ class ManagementPage(wx.Panel):
         wx.StaticText(self.opanel, label=t1)
         self.elist = wx.TextCtrl(self, style=wx.TE_MULTILINE)
         updatebtn = wx.Button(self.opanel, pos=(40, 80), label='Update')
+        t2 = 'Projected Bracket'
+        projbtn = wx.Button(self.opanel, pos=(140, 80), label=t2)
         t0 = 'Generate player list'
         genbtn = wx.Button(self.opanel, pos=(40, 150), label=t0)
         self.hsplit.Add(self.elist, 1, wx.ALIGN_LEFT | wx.EXPAND)
         self.hsplit.Add(self.opanel, 1, wx.ALIGN_RIGHT | wx.EXPAND)
         self.SetSizer(self.hsplit)
         self.Bind(wx.EVT_BUTTON, self.update, updatebtn)
+        self.Bind(wx.EVT_BUTTON, self.proj, projbtn)
         self.Bind(wx.EVT_BUTTON, self.gen, genbtn)
 
     def update(self, e):
@@ -126,6 +130,35 @@ class ManagementPage(wx.Panel):
         fb = FinalPage(self.parent, brackets)
         fb.sname = self.name
         self.parent.AddPage(fb, self.name + ": Finals")
+
+    def proj(self, e):
+        players = self.elist.GetValue().split("\n")
+        if (players[-1] == ''):
+            players = players[:-1]
+        brackets = data.create(players, int(self.elim))
+        if isinstance(brackets, str):
+            errortext = "Need more entrants for that # of elims"
+            w = wx.MessageDialog(self.parent, errortext, "Error", wx.OK)
+            w.ShowModal()
+            w.Destroy()
+            return
+        i = -1
+        bracketfuncs.projected(brackets)
+
+        for b in brackets:
+            i += 1
+            page = BracketPage(self.parent, b)
+            ename = "%sx LB" % i
+            if i == 0:
+                ename = "WB"
+            if i == 1:
+                ename = "LB"
+            page.sname = self.name+" [P]"
+            self.parent.AddPage(page, self.name + " [P] : " + ename)
+
+        fb = FinalPage(self.parent, brackets)
+        fb.sname = self.name + " [P]"
+        self.parent.AddPage(fb, self.name + " [P] : Finals")
 
     def gen(self, e):
         h = 220
