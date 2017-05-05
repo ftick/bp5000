@@ -335,7 +335,7 @@ class SpecialMatch(Match):
 
     def setwinner(self, part, setsleft):
         if self.wlink:
-            self.addpart(part, False)
+            self.wlink.addpart(part, False)
             self.wlink.lowerleft = setsleft
         # assignplacing (otherpart)
 
