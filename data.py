@@ -1,7 +1,12 @@
 import math
+
+
 pid = 1
 uid = 1
+
+
 class Participant:
+
     def __init__(self, tag=None, seed=None):
         if tag:
             self.tag = tag
@@ -12,14 +17,19 @@ class Participant:
             self.tag = "Bye"
             self.uniqueid = 0
         self.seed = seed
+
     def __repr__(self):
         return str(self)
+
     def __str__(self):
         return str(self.seed)+": "+self.tag
+
     def isbye(self):
         return self.uniqueid == 0
 
+
 class Match:
+
     def __init__(self, data=None):
         self.llink = None
         self.wlink = None
@@ -32,9 +42,9 @@ class Match:
         uid += 1
 
     def addpart(self, part):
-        if (self.part1 == None):
+        if (self.part1 is None):
             self.part1 = part
-        elif self.part2 == None:
+        elif self.part2 is None:
             if self.part1.isbye():
                 self.part2 = part
                 self.setwinner(self.part2)
@@ -47,9 +57,10 @@ class Match:
             if self.part2.seed < self.part1.seed:
                 self.part2 = self.part1
                 self.part1 = part
-                
+
         else:
             print("match has 2 participants")
+
     def setwinner(self, part):
         if (self.winner != 0):
             self.settbd()
@@ -71,9 +82,9 @@ class Match:
         if(self.llink):
             self.llink.addpart(loser)
         else:
-            #TODO: assign loser a placing.
+            # TODO: assign loser a placing.
             pass
-        
+
     def settbd(self):
         w = self.part1 if self.winner == 1 else self.part2
         l = self.part1 if self.winner == 2 else self.part2
@@ -90,31 +101,38 @@ class Match:
                 self.llink.part1 = None
             elif self.llink.part2 == l:
                 self.llink.part2 = None
-        
-        
+
     def u(self):
         return str(self.uniqueid)
+
     def __str__(self):
         p1t = self.part1.tag if self.part1 else '?'
         p2t = self.part2.tag if self.part2 else '?'
         rstr = p1t + ' vs ' + p2t
         return 'M'+str(self.uniqueid)+'('+rstr+')'
+
     def __eq__(self, other):
         return self.uniqueid == other.uniqueid
+
     def __repr__(self):
         return self.__str__()
+
     def itllink(self, num):
         if(num == 1):
             return self.llink
         return self.llink.itllink(num-1)
+
     def itwlink(self, num):
         if(num == 1):
             return self.wlink
         return self.wlink.itwlink(num-1)
+
     def getmatchdisp(self):
         return "M"+str(self.uniqueid)
+
     def isspecial(self):
         return False
+
 
 #
 # Steps to create a bracket:
@@ -138,7 +156,8 @@ def create(plist, elim):
     # 7 | 128
     # 8 | 256
     #
-    rest = {1:4,2:4,3:8, 4:8, 5:16, 6: 16, 7:16, 8:32, 9:32, 10:32, 11:32, 12:32, 13:32,14:64, 15:64, 16:64}
+    rest = {1: 4, 2: 4, 3: 8, 4: 8, 5: 16, 6: 16, 7: 16, 8: 32, 9: 32,
+            10: 32, 11: 32, 12: 32, 13: 32, 14: 64, 15: 64, 16: 64}
     if l < 129 and rest[elim] > l:
         return "Elimination # too high for # of players"
     brackets = [genm(plist)]
@@ -148,12 +167,14 @@ def create(plist, elim):
     progbyes(brackets[0])
     return brackets
 
+
 def progbyes(br):
     for m in br:
         if m.part1.isbye():
             m.setwinner(m.part2)
         elif m.part2.isbye():
             m.setwinner(m.part1)
+
 
 def genm(players):
     # Generates a winners bracket from a list
@@ -171,11 +192,11 @@ def genm(players):
     sn = 0
     for player in players:
         sn += 1
-        if player == None:
+        if player is None:
             pl.append(Participant(seed=sn))
         else:
-            pl.append(Participant(tag=player,seed=sn))
-            
+            pl.append(Participant(tag=player, seed=sn))
+
     matches = gen(int(i/2))
     # i = identity. important.
     # for first round matches, seeds add up to i+1.
@@ -195,28 +216,13 @@ def genm(players):
         '''
         r = 65536
         while((it-1) % r != 0):
-            r  = int(r/2)
-        print("r:" +str(r))
+            r = int(r/2)
         seeda = matches[it-1-r].part1.seed
         wantseed = int(i/(r*2)) - seeda
         matches[it-1].part1 = pl[wantseed]
         matches[it-1].part2 = pl[-wantseed-1]
-    '''
-    for r in range(0, len(matches)):
-        try:
-            p = Participant(tag=players[r*2],seed=r*2+1)
-            matches[r].addpart(p)
-        except IndexError:
-            bye = Participant(seed=(r*2 +1)) 
-            matches[r].addpart(bye)
-        try:
-            p = Participant(tag=players[r*2+1],seed=r*2+2)
-            matches[r].addpart(p)
-        except IndexError:
-            bye = Participant(seed=(r*2+2))
-            matches[r].addpart(bye)
-    '''
-    return matches 
+    return matches
+
 
 def gen(npart):
     mlist = []
@@ -240,17 +246,15 @@ def gen(npart):
     return blist
 
 
-
 def genl(matches):
     '''
     generates a losers bracket given a winners
-    bracket. 
+    bracket.
     '''
     prev = None
     lblist = []
     cwb = matches
     cwbo = matches
-    #import pdb; pdb.set_trace()
     while(len(cwb) == len(cwbo)):
         if(cwb != []):
             cwbo = cwb
@@ -266,19 +270,9 @@ def genl(matches):
             if not (cwbo[r].wlink in cwb):
                 cwb.append(cwbo[r].wlink)
 
-
-    #cwb = []
-    #for r in range(0, len(matches)):
-    #    if matches[r].wlink in cwb:
-    #        pass
-    #    else:
-    #        cwb.append(matches[r].wlink)
     # new wb should be half size as old.
-    # if it is the same, need to 
+    # if it is the same, need to
     clb = lblist
-    #for m23 in lblist:
-    #    if (not m23.wlink is None) and (not m23.wlink in clb):
-    #        clb.append(m23)
     while(len(clb) > 1):
         # 2 cases. either winners bracket players
         # come into losers too play or losers bracket
@@ -307,16 +301,19 @@ def genl(matches):
         clb = nlb
     return lblist
 
+
 def finalm(m):
     while not (None is m.wlink):
         m = m.wlink
     return m
+
 
 class SpecialMatch(Match):
     ''' A Special match for grand final type sets
     where people play multiple times
     NOTE: upper player is p1, lower is p2
     '''
+
     def __init__(self, upperleft=None, lowerleft=None, data=None):
         self.llink = None
         self.wlink = None
@@ -335,13 +332,16 @@ class SpecialMatch(Match):
             self.part1 = part
         else:
             self.part2 = part
+
     def setwinner(self, part, setsleft):
         if self.wlink:
             self.addpart(part, False)
             self.wlink.lowerleft = setsleft
-        #assignplacing (otherpart)
+        # assignplacing (otherpart)
+
     def isspecial(self):
         return True
+
 
 def fbracket(brackets):
     '''
@@ -352,7 +352,7 @@ def fbracket(brackets):
     for i in range(len(brackets), 0, -1):
         for r in range(i, len(brackets)):
             f2b(brackets[r-1], brackets[r])
-    
+
     # make gfs, matches that break the laws of multi elim format
     for r in range(0, len(brackets)-1):
         b = len(brackets) - r - 1
@@ -363,6 +363,7 @@ def fbracket(brackets):
         upper.wlink = gf
         upper.upper = True
         lower.upper = False
+
 
 def f2b(b1, b2):
     nmatch = Match("F")

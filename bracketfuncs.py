@@ -1,6 +1,7 @@
-## Bracket Functions, utilities for manipulating brackets.
-##
-##
+# Bracket Functions, utilities for manipulating brackets.
+#
+#
+
 
 def projected(brackets):
     '''
@@ -13,9 +14,11 @@ def projected(brackets):
         while br != []:
             nbr = []
             for match in br:
-                better = match.part1 if match.part1.seed < match.part2.seed else match.part2
+                better = match.part2
+                if match.part1.seed < match.part2.seed:
+                    better = match.part1
                 match.setwinner(better)
-                print(match.part1, match.part2)
-                if (match.wlink) and (not match.wlink.isspecial()) and (not match.wlink in nbr):
+                cond0 = match.wlink.isspecial()
+                if (match.wlink) and (not cond0) and (match.wlink not in nbr):
                     nbr.append(match.wlink)
             br = nbr
