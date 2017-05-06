@@ -22,3 +22,24 @@ def projected(brackets):
                 if (match.wlink) and (not cond0) and (match.wlink not in nbr):
                     nbr.append(match.wlink)
             br = nbr
+
+
+def placing(brackets):
+    '''
+    given a bracket, returns a dict mapping Participant -> placing
+    '''
+    place = {}
+    placing = len(brackets[0])*2
+    last = brackets[-1]
+    rd = last
+    nrd = []
+    while(len(rd) != 0):
+        placing = placing - len(m)
+        for m in rd:
+            l = m.loser()
+            place[l] = placing
+            if m.wlink not in nrd:
+                nrd.append(m.wlink)
+        rd = nrd
+        nrd = []
+    return place

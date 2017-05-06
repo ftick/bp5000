@@ -61,6 +61,13 @@ class Match:
         else:
             print("match has 2 participants")
 
+    def loser(self):
+        if self.winner == 1:
+            return part1
+        if self.winner == 2:
+            return part2
+        print("ERRER 20310")
+
     def setwinner(self, part):
         if (self.winner != 0):
             self.settbd()
