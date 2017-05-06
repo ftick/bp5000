@@ -1,6 +1,7 @@
 from unittest import TestCase
 import unittest
 import data
+import bracketfuncs
 
 
 class test_brackets(TestCase):
@@ -19,6 +20,16 @@ class test_brackets(TestCase):
         self.assertEqual(w[0].part2.tag, 'd')
         self.assertEqual(w[1].part1.tag, 'b')
         self.assertEqual(w[1].part2.tag, 'c')
+
+    def test3place(self):
+        w = data.genm(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
+        l = data.genl(w)
+        data.fbracket([w, l])
+        bracketfuncs.projected([w, l])
+        placingex = {'h': 7, 'g': 7, 'f': 5, 'e': 5, 'd': 4, 'c': 3}
+        pl = bracketfuncs.placing([w, l])
+        for p in pl:
+            self.assertEqual(placingex[p.tag], pl[p])
 
 
 if __name__ == '__main__':

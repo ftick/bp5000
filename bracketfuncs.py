@@ -29,16 +29,19 @@ def placing(brackets):
     given a bracket, returns a dict mapping Participant -> placing
     '''
     place = {}
-    placing = len(brackets[0])*2
+    placing = len(brackets[0])*2 + 1
     last = brackets[-1]
     rd = last
     nrd = []
-    while(len(rd) != 0):
-        placing = placing - len(m)
+    while(rd != []):
+        placing = placing - len(rd)
         for m in rd:
+
             l = m.loser()
-            place[l] = placing
-            if m.wlink not in nrd:
+            if(l is not None):
+                place[l] = placing
+
+            if m.wlink not in nrd and m.wlink is not None:
                 nrd.append(m.wlink)
         rd = nrd
         nrd = []
