@@ -96,18 +96,42 @@ class ManagementPage(wx.Panel):
         projbtn = wx.Button(self.opanel, pos=(140, 80), label=t2)
         t0 = 'Generate player list'
         genbtn = wx.Button(self.opanel, pos=(40, 150), label=t0)
+        t3 = 'View player placings'
+        placebtn = wx.Button(self.opanel, pos=(190, 150), label=t3)
         self.hsplit.Add(self.elist, 1, wx.ALIGN_LEFT | wx.EXPAND)
         self.hsplit.Add(self.opanel, 1, wx.ALIGN_RIGHT | wx.EXPAND)
         self.SetSizer(self.hsplit)
         self.Bind(wx.EVT_BUTTON, self.update, updatebtn)
         self.Bind(wx.EVT_BUTTON, self.proj, projbtn)
         self.Bind(wx.EVT_BUTTON, self.gen, genbtn)
+        self.Bind(wx.EVT_BUTTON, self.place, placebtn)
+
+    def place(self, e):
+        if not hasattr(self, "brackets"):
+            errortext = "Make bracket before doing that"
+            w = wx.MessageDialog(self.parent, errortext, "Error", wx.OK)
+            w.ShowModal()
+            w.Destroy()
+            return
+        placel = bracketfuncs.placing(self.brackets)
+        d = wx.Dialog(None)
+        d.SetTitle("Results")
+        a = wx.TextCtrl(d, style=wx.TE_MULTILINE)
+        a.SetEditable(False)
+        ptxt = ""
+        for p in placel:
+            if not p.isbye():
+                ptxt += str(placel[p]) + ". " + p.tag + "\n"
+        a.SetValue(ptxt)
+        d.SetSize((250, 320))
+        d.Show(True)
 
     def update(self, e):
         players = self.elist.GetValue().split("\n")
         if (players[-1] == ''):
             players = players[:-1]
         brackets = data.create(players, int(self.elim))
+        self.brackets = brackets
         if isinstance(brackets, str):
             errortext = "Need more entrants for that # of elims"
             w = wx.MessageDialog(self.parent, errortext, "Error", wx.OK)

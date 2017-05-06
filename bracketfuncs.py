@@ -2,6 +2,8 @@
 #
 #
 
+from collections import OrderedDict
+
 
 def projected(brackets):
     '''
@@ -28,7 +30,7 @@ def placing(brackets):
     '''
     given a bracket, returns a dict mapping Participant -> placing
     '''
-    place = {}
+    place = OrderedDict()
     placing = len(brackets[0])*2 + 1
     last = brackets[-1]
     rd = last
@@ -40,6 +42,10 @@ def placing(brackets):
             l = m.loser()
             if(l is not None):
                 place[l] = placing
+                place.move_to_end(l, False)
+                if m.wlink is None:
+                    place[m.winner_()] = 1
+                    place.move_to_end(m.winner_(), False)
 
             if m.wlink not in nrd and m.wlink is not None:
                 nrd.append(m.wlink)

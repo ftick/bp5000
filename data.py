@@ -67,6 +67,12 @@ class Match:
         if self.winner == 2:
             return self.part1
 
+    def winner_(self):
+        if self.winner == 2:
+            return self.part2
+        if self.winner == 1:
+            return self.part1
+
     def setwinner(self, part):
         if (self.winner != 0):
             self.settbd()
@@ -343,7 +349,10 @@ class SpecialMatch(Match):
         if self.wlink:
             self.wlink.addpart(part, False)
             self.wlink.lowerleft = setsleft
-        # assignplacing (otherpart)
+        if(part == self.part1):
+            self.winner = 1
+        elif (part == self.part2):
+            self.winner = 2
 
     def isspecial(self):
         return True
