@@ -4,6 +4,9 @@
 from PIL import Image, ImageDraw, ImageFont
 import math
 
+# Colour of the lines
+lcolor = (255, 195, 155)
+
 
 def drawmatch(match, highlight=False):
     str1 = match.part1.tag if match.part1 else "TBD"
@@ -108,19 +111,33 @@ def drawbracket(bracket):
         rounds += 1
     img = Image.new('RGBA', (250+int(220*rounds),
                              len(br)*120), color=(0, 0, 0))
+    d = ImageDraw.Draw(img)
     x = 30
     ymult = 1
+    rdc = len(br)
+    dbar = False
     while(br[0] is not None):
+        dbar = (rdc != len(br))
         nb = []
         y = 30 + (ymult-1)*60
+        fakey = (30+(((ymult/2)-1)*60))
         for ma in br:
             im = drawmatch(ma)
+            if(dbar):
+                # y mult /2
+                ny = fakey + (120*ymult/2)
+                d.rectangle((x+100, fakey+36, x+104, ny+40), fill=lcolor)
+                fakey = ny + (120*ymult/2)
+
             img.paste(im, (x, y))
+            if ma.wlink is not None and not ma.wlink.isspecial():
+                d.rectangle((x+200, y+36, x+320, y+40), fill=lcolor)
             y += 120*ymult
             if not (ma.wlink in nb):
                 nb.append(ma.wlink)
         x += 220
         ymult = ymult*int(len(br)/len(nb))
+        rdc = len(br)
         br = nb
     return img
 
@@ -156,7 +173,4 @@ if __name__ == '__main__':
     im2g = drawbracket(l)
     im3g = drawbracket(l2)
     imfg = drawfinals([b, l, l2])
-    img.save("winners.png")
-    im2g.save("losers.png")
-    im3g.save("losers2x.png")
-    imfg.save("finals.png")
+    img.show()
