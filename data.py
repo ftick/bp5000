@@ -267,7 +267,11 @@ def genl(matches):
     lblist = []
     cwb = matches
     cwbo = matches
+    run = 0
     while(len(cwb) == len(cwbo)):
+        run += 1
+        if run == 3:
+            break
         if(cwb != []):
             cwbo = cwb
             cwb = []
