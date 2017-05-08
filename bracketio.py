@@ -25,12 +25,38 @@ def bool_w(bol):
     return bytes([val])
 
 
+def str_w(stri):
+    bts = int_w(len(stri))
+    return bts + stri.encode()
+
+
 def bool_r(bn):
     return (bn == bytes([1]))
 
 
+#
+# str - tag
+# 4 - seed
+#
+
+def parts_w(brs):
+    l = []
+    bts = bytes()
+    for m in brs[0]:
+        if m.part1.uniqueid not in l:
+            l.append(m.part1.uniqueid)
+            bts += str_w(m.part1.tag)
+            bts += int_w(m.part1.seed)
+        if m.part2.uniqueid not in l:
+            l.append(m.part2.uniqueid)
+            bts += str_w(m.part2.tag)
+            bts += int_w(m.part2.seed)
+    return bts
+            
+
 def entire_w(brs):
     bts = int_w(VERSION_CODE)
+    bts += parts_w(brs)
     for br in brs:
         bts = bts + bracket_w(br)
     return bts
@@ -73,7 +99,7 @@ def match_w(match):
     returns bytes represting the match, that can be decoded by
     match_r
     '''
-    mid = match.uniqueid
+    mid = int_w(match.uniqueid)
     haswl = bool_w(match.wlink is not None)
     hasll = bool_w(match.llink is not None)
     wcode = int_w(0)
@@ -96,3 +122,15 @@ def match_w(match):
 
     mp32 = mid + haswl + wcode + hasll + lcode + hasp1
     return mp32 + p1code + hasp2 + p2code + wincode
+
+
+if __name__ == '__main__':
+    import data
+    i = 128
+    plist = (['player %s ' % x for x in range(0, i)])
+    b = data.genm(plist)
+    l = data.genl(b)
+    l2 = data.genl(l)
+    l3 = data.genl(l2)
+    l4 = data.genl(l3)
+    write_bracket("test", [b, l, l2, l3, l4])
