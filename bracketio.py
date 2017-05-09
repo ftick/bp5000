@@ -1,4 +1,5 @@
 import struct
+import data
 
 # used for file version compatibility
 VERSION_CODE = 1
@@ -9,13 +10,16 @@ def write_bracket(fil, br):
     s.write(entire_w(br))
     s.close()
 
+def read_bracket(fil):
+    s = open(fil, 'rb')
+    return entire_r(s.read())
 
 def int_w(nt):
     return struct.pack(">I", nt)
 
 
 def int_r(bn):
-    return struct.unpack(">I", bn)
+    return struct.unpack(">I", bn)[0]
 
 
 def bool_w(bol):
@@ -26,8 +30,12 @@ def bool_w(bol):
 
 
 def str_w(stri):
-    bts = int_w(len(stri))
-    return bts + stri.encode()
+    bts = int_w(len(stri.encode("utf-8")))
+    return bts + stri.encode("utf-8")
+
+def str_r(bts):
+    num = int_r(bts[0:4])
+    return ((4+num), bts[4:4+num].decode("utf-8"))
 
 
 def bool_r(bn):
@@ -51,8 +59,23 @@ def parts_w(brs):
             l.append(m.part2.uniqueid)
             bts += str_w(m.part2.tag)
             bts += int_w(m.part2.seed)
-    return bts
+    return int_w(len(l)) + bts
 
+def parts_r(bts):
+    num = int_r(bts[:4])
+    plist = []
+    bts = bts[4:]
+    print(num)
+    for r in range(0, num):
+        print(r)
+        (cut, tag) = str_r(bts)
+        bts = bts[cut:]
+        seed = int_r(bts[:4])
+        bts = bts[4:]
+        p = data.Participant(tag=tag, seed=seed)
+        print(tag)
+        plist.append(p)
+    return (bts, plist)
 
 def entire_w(brs):
     bts = int_w(VERSION_CODE)
@@ -78,7 +101,18 @@ def bracket_w(br):
 
     return bts
 
+def brackets_r(bts):
+    ### TODO
 
+
+def entire_r(bts):
+    vcode = int_r(bts[:4])
+    if vcode != VERSION_CODE:
+        return "Invalid file"
+    bts = bts[4:]
+    (bts, parts) = parts_r(bts)
+    brackets = brackets_r(bts)
+    import pdb; pdb.set_trace()
 #
 # Matches:
 # 4 : match code
@@ -124,6 +158,20 @@ def match_w(match):
     return mp32 + p1code + hasp2 + p2code + wincode
 
 
+def match_r(bts):
+    m = Match("L")
+    m.uniqueid = int_r(bts[:4])
+    m._HASWL = bool_r(bts[4])
+    m._WL = int_r(bts[5:9])
+    m._HASLL = bool_r(bts[9])
+    m._LL = int_r(bts[10:14])
+    m._HASP1 = bool_r(bts[14])
+    m._P1 = int_r(bts[15:19])
+    m._HASP2 = bool_r(bts[19])
+    m._P2 = int_r(bts[20:24])
+    m.winner = int_r(bts[24:28])
+    return m
+
 if __name__ == '__main__':
     import data
     i = 128
@@ -134,3 +182,4 @@ if __name__ == '__main__':
     l3 = data.genl(l2)
     l4 = data.genl(l3)
     write_bracket("test", [b, l, l2, l3, l4])
+    read_bracket("test")
