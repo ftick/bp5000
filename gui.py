@@ -3,6 +3,7 @@ import wx.lib.agw.flatnotebook as fnb
 import data
 import grf
 import bracketfuncs
+import bracketio
 #
 # Tested with wx version 3 and python 2.7
 #
@@ -19,7 +20,6 @@ class MFrame(wx.Frame):
         filem = wx.Menu()
         new = filem.Append(wx.ID_NEW, '&New Tournament')
         open_ = filem.Append(wx.ID_OPEN, '&Open Tournament')
-        save = filem.Append(wx.ID_SAVE, '&Save Tournament')
         filem.AppendSeparator()
         self.Bind(wx.EVT_MENU, self.new_event, new)
         qmi = wx.MenuItem(filem, wx.ID_EXIT, '&Quit\tCtrl+W')
@@ -98,6 +98,7 @@ class ManagementPage(wx.Panel):
         genbtn = wx.Button(self.opanel, pos=(40, 150), label=t0)
         t3 = 'View player placings'
         placebtn = wx.Button(self.opanel, pos=(190, 150), label=t3)
+        savebtn = wx.Button(self.opanel, pos=(350, 150), label="Save")
         self.hsplit.Add(self.elist, 1, wx.ALIGN_LEFT | wx.EXPAND)
         self.hsplit.Add(self.opanel, 1, wx.ALIGN_RIGHT | wx.EXPAND)
         self.SetSizer(self.hsplit)
@@ -105,6 +106,15 @@ class ManagementPage(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.proj, projbtn)
         self.Bind(wx.EVT_BUTTON, self.gen, genbtn)
         self.Bind(wx.EVT_BUTTON, self.place, placebtn)
+        self.Bind(wx.EVT_BUTTON, self.save, savebtn)
+
+    def save(self, e):
+        dia = wx.FileDialog(self, "Save Bracket",
+                            "", self.sname, "bp5000 bracket|*.bp5",
+                            wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+        if dia.ShowModal() == wx.ID_CANCEL:
+            return
+        bracketio.write_bracket(dia.GetPath(), self.brackets)
 
     def place(self, e):
         if not hasattr(self, "brackets"):

@@ -52,7 +52,7 @@ def parts_w(brs):
             bts += str_w(m.part2.tag)
             bts += int_w(m.part2.seed)
     return bts
-            
+
 
 def entire_w(brs):
     bts = int_w(VERSION_CODE)
@@ -115,7 +115,7 @@ def match_w(match):
     p2code = int_w(0)
     if match.part1 is not None:
         p1code = int_w(match.part1.uniqueid)
-    if match.part1 is not None:
+    if match.part2 is not None:
         p2code = int_w(match.part2.uniqueid)
 
     wincode = int_w(match.winner)
