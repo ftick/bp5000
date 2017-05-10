@@ -25,6 +25,7 @@ class MFrame(wx.Frame):
         qmi = wx.MenuItem(filem, wx.ID_EXIT, '&Quit\tCtrl+W')
         filem.AppendItem(qmi)
         self.Bind(wx.EVT_MENU, self.quit_event, qmi)
+        self.Bind(wx.EVT_MENU, self.load_event, open_)
         menubar.Append(filem, '&File')
         self.SetMenuBar(menubar)
         p = wx.Panel(self)
@@ -45,6 +46,16 @@ class MFrame(wx.Frame):
         self.SetTitle('BP5000')
         self.Centre()
         self.Show(True)
+
+    def load_event(self, e):
+        dia = wx.FileDialog(self, "Load Bracket",
+                            "", "", "bp5000 bracket|*.bp5", wx.FD_OPEN)
+        if dia.ShowModal() == wx.ID_CANCEL:
+            return
+        brs = bracketio.read_bracket(dia.GetPath())
+        name = dia.GetPath().replace(".bp5", "")
+        pg = ManagementPage(self.nb, name, len(brs), brs)
+        self.nb.InsertPage(0, pg, name)
 
     def new_event(self, e):
         h = 220
@@ -80,7 +91,7 @@ class MFrame(wx.Frame):
 
 class ManagementPage(wx.Panel):
 
-    def __init__(self, parent, name="tournament", elim="2"):
+    def __init__(self, parent, name="tournament", elim="2", brackets=None):
         self.elim = elim
         self.name = name
         self.parent = parent
@@ -107,6 +118,33 @@ class ManagementPage(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.gen, genbtn)
         self.Bind(wx.EVT_BUTTON, self.place, placebtn)
         self.Bind(wx.EVT_BUTTON, self.save, savebtn)
+        if brackets:
+            self.brackets = brackets
+            i = -1
+
+            # get participants from bracket, sorted.
+            plist = []
+            for m in brackets[0]:
+                if not m.part1.isbye() and m.part1 not in plist:
+                    plist.append(m.part1)
+                if not m.part2.isbye() and m.part2 not in plist:
+                    plist.append(m.part2)
+            sortedplist = [None]*len(plist)
+            # O(n) sort
+            for i123 in plist:
+                sortedplist[i123.seed-1] = i123
+
+            self.elist.SetValue("\n".join([x.tag for x in sortedplist]))
+            for b in brackets:
+                i += 1
+                page = BracketPage(self.parent, b)
+                ename = "%sx LB" % i
+                if i == 0:
+                    ename = "WB"
+                if i == 1:
+                    ename = "LB"
+                page.sname = self.name
+                self.parent.AddPage(page, self.name + ": " + ename)
 
     def save(self, e):
         dia = wx.FileDialog(self, "Save Bracket",

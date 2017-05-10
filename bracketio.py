@@ -10,9 +10,11 @@ def write_bracket(fil, br):
     s.write(entire_w(br))
     s.close()
 
+
 def read_bracket(fil):
     s = open(fil, 'rb')
     return entire_r(s.read())
+
 
 def int_w(nt):
     return struct.pack(">I", nt)
@@ -32,6 +34,7 @@ def bool_w(bol):
 def str_w(stri):
     bts = int_w(len(stri.encode("utf-8")))
     return bts + stri.encode("utf-8")
+
 
 def str_r(bts):
     num = int_r(bts[0:4])
@@ -63,6 +66,7 @@ def parts_w(brs):
             bts += int_w(m.part2.uniqueid)
     return int_w(len(l)) + bts
 
+
 def parts_r(bts):
     num = int_r(bts[:4])
     plist = {}
@@ -77,6 +81,7 @@ def parts_r(bts):
         p.uniqueid = uid
         plist[p.uniqueid] = p
     return (bts, plist)
+
 
 def entire_w(brs):
     bts = int_w(VERSION_CODE)
@@ -106,8 +111,8 @@ def bracket_w(br):
 
     return int_w(numm) + bts
 
+
 def brackets_r(bts, pdict):
-    ### TODO
     elims = int_r(bts[:4])
     bts = bts[4:]
     mlist = {}
@@ -152,6 +157,8 @@ def entire_r(bts):
     (bts, parts) = parts_r(bts)
     brackets = brackets_r(bts, parts)
     return brackets
+
+
 #
 # Matches:
 # 4 : match code
@@ -165,7 +172,7 @@ def entire_r(bts):
 # 4 : part2 code
 # 4 : wincode
 #
-# 28 bytes
+# 28 bytes (29 with byte before whether it is 1st round)
 #
 def match_w(match):
     '''
@@ -211,6 +218,7 @@ def match_r(bts):
     m.winner = int_r(bts[24:28])
     return m
 
+
 if __name__ == '__main__':
     import data
     i = 128
@@ -221,6 +229,6 @@ if __name__ == '__main__':
     l3 = data.genl(l2)
     l4 = data.genl(l3)
     write_bracket("test", [b, l, l2, l3, l4])
-    print("wrote "+ repr([b, l, l2, l3, l4]))
+    print("wrote " + repr([b, l, l2, l3, l4]))
     r = read_bracket("test")
-    print("read "+ repr(r))
+    print("read " + repr(r))
