@@ -67,9 +67,7 @@ def parts_r(bts):
     num = int_r(bts[:4])
     plist = {}
     bts = bts[4:]
-    print(num)
     for r in range(0, num):
-        print(r)
         (cut, tag) = str_r(bts)
         bts = bts[cut:]
         seed = int_r(bts[:4])
@@ -77,7 +75,6 @@ def parts_r(bts):
         bts = bts[8:]
         p = data.Participant(tag=tag, seed=seed)
         p.uniqueid = uid
-        print(tag)
         plist[p.uniqueid] = p
     return (bts, plist)
 
@@ -93,15 +90,17 @@ def bracket_w(br):
     nbr = []
     bts = None
     numm = 0
+    fir = True
     while len(br) != 0:
         for m in br:
             numm += 1
             if bts is None:
-                bts = match_w(m)
+                bts = bool_w(fir) + match_w(m)
             else:
-                bts = bts + match_w(m)
+                bts = bts + bool_w(fir) + match_w(m)
             if m.wlink is not None and m.wlink not in nbr:
                 nbr.append(m.wlink)
+        fir = False
         br = nbr
         nbr = []
 
@@ -112,14 +111,18 @@ def brackets_r(bts, pdict):
     elims = int_r(bts[:4])
     bts = bts[4:]
     mlist = {}
+    bracks = []
     for r in range(0, elims):
         mcount = int_r(bts[:4])
         bts = bts[4:]
+        bracks.append([])
         for i in range(0, mcount):
-            m = match_r(bts[:28])
-            print(m)
-            bts = bts[28:]
+            f = bool_r(bts[0])
+            m = match_r(bts[1:29])
+            bts = bts[29:]
             mlist[m.uniqueid] = m
+            if f:
+                bracks[-1].append(m)
     for mid in mlist:
         mtch = mlist[mid]
         if mtch._HASWL:
@@ -138,8 +141,7 @@ def brackets_r(bts, pdict):
             mtch.part2 = pdict[mtch._P2]
             del mtch._HASP2
             del mtch._P2
-    return mlist
-            
+    return bracks
 
 
 def entire_r(bts):
@@ -149,7 +151,7 @@ def entire_r(bts):
     bts = bts[4:]
     (bts, parts) = parts_r(bts)
     brackets = brackets_r(bts, parts)
-    import pdb; pdb.set_trace()
+    return brackets
 #
 # Matches:
 # 4 : match code
@@ -219,4 +221,6 @@ if __name__ == '__main__':
     l3 = data.genl(l2)
     l4 = data.genl(l3)
     write_bracket("test", [b, l, l2, l3, l4])
-    read_bracket("test")
+    print("wrote "+ repr([b, l, l2, l3, l4]))
+    r = read_bracket("test")
+    print("read "+ repr(r))
