@@ -39,7 +39,7 @@ def str_r(bts):
 
 
 def bool_r(bn):
-    return (bn == bytes([1]))
+    return (bn == 1)
 
 
 #
@@ -55,15 +55,17 @@ def parts_w(brs):
             l.append(m.part1.uniqueid)
             bts += str_w(m.part1.tag)
             bts += int_w(m.part1.seed)
+            bts += int_w(m.part1.uniqueid)
         if m.part2.uniqueid not in l:
             l.append(m.part2.uniqueid)
             bts += str_w(m.part2.tag)
             bts += int_w(m.part2.seed)
+            bts += int_w(m.part2.uniqueid)
     return int_w(len(l)) + bts
 
 def parts_r(bts):
     num = int_r(bts[:4])
-    plist = []
+    plist = {}
     bts = bts[4:]
     print(num)
     for r in range(0, num):
@@ -71,15 +73,17 @@ def parts_r(bts):
         (cut, tag) = str_r(bts)
         bts = bts[cut:]
         seed = int_r(bts[:4])
-        bts = bts[4:]
+        uid = int_r(bts[4:8])
+        bts = bts[8:]
         p = data.Participant(tag=tag, seed=seed)
+        p.uniqueid = uid
         print(tag)
-        plist.append(p)
+        plist[p.uniqueid] = p
     return (bts, plist)
 
 def entire_w(brs):
     bts = int_w(VERSION_CODE)
-    bts += parts_w(brs)
+    bts += (parts_w(brs) + int_w(len(brs)))
     for br in brs:
         bts = bts + bracket_w(br)
     return bts
@@ -88,8 +92,10 @@ def entire_w(brs):
 def bracket_w(br):
     nbr = []
     bts = None
+    numm = 0
     while len(br) != 0:
         for m in br:
+            numm += 1
             if bts is None:
                 bts = match_w(m)
             else:
@@ -99,10 +105,41 @@ def bracket_w(br):
         br = nbr
         nbr = []
 
-    return bts
+    return int_w(numm) + bts
 
-def brackets_r(bts):
+def brackets_r(bts, pdict):
     ### TODO
+    elims = int_r(bts[:4])
+    bts = bts[4:]
+    mlist = {}
+    for r in range(0, elims):
+        mcount = int_r(bts[:4])
+        bts = bts[4:]
+        for i in range(0, mcount):
+            m = match_r(bts[:28])
+            print(m)
+            bts = bts[28:]
+            mlist[m.uniqueid] = m
+    for mid in mlist:
+        mtch = mlist[mid]
+        if mtch._HASWL:
+            mtch.wlink = mlist[mtch._WL]
+            del mtch._HASWL
+            del mtch._WL
+        if mtch._HASLL:
+            mtch.llink = mlist[mtch._LL]
+            del mtch._HASLL
+            del mtch._LL
+        if mtch._HASP1:
+            mtch.part1 = pdict[mtch._P1]
+            del mtch._HASP1
+            del mtch._P1
+        if mtch._HASP2:
+            mtch.part2 = pdict[mtch._P2]
+            del mtch._HASP2
+            del mtch._P2
+    return mlist
+            
 
 
 def entire_r(bts):
@@ -111,7 +148,7 @@ def entire_r(bts):
         return "Invalid file"
     bts = bts[4:]
     (bts, parts) = parts_r(bts)
-    brackets = brackets_r(bts)
+    brackets = brackets_r(bts, parts)
     import pdb; pdb.set_trace()
 #
 # Matches:
@@ -159,7 +196,7 @@ def match_w(match):
 
 
 def match_r(bts):
-    m = Match("L")
+    m = data.Match("L")
     m.uniqueid = int_r(bts[:4])
     m._HASWL = bool_r(bts[4])
     m._WL = int_r(bts[5:9])
