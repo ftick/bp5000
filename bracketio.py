@@ -13,7 +13,9 @@ def write_bracket(fil, br):
 
 def read_bracket(fil):
     s = open(fil, 'rb')
-    return entire_r(s.read())
+    d = entire_r(s.read())
+    s.close()
+    return d
 
 
 def int_w(nt):
