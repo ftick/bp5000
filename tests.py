@@ -2,6 +2,7 @@ from unittest import TestCase
 import unittest
 import data
 import bracketfuncs
+import bracketio
 
 
 class test_brackets(TestCase):
@@ -30,6 +31,21 @@ class test_brackets(TestCase):
         pl = bracketfuncs.placing([w, l])
         for p in pl:
             self.assertEqual(placingex[p.tag], pl[p])
+
+
+class test_iobrackets(TestCase):
+
+    def test1writeread(self):
+        i = 128
+        plist = (['player %s ' % x for x in range(0, i)])
+        b = data.genm(plist)
+        l = data.genl(b)
+        l2 = data.genl(l)
+        l3 = data.genl(l2)
+        l4 = data.genl(l3)
+        bracketio.write_bracket("TEST_FILE.bp5", [b, l, l2, l3, l4])
+        r = bracketio.read_bracket("TEST_FILE.bp5")
+        self.assertEqual(repr([b, l, l2, l3, l4]), repr(r))
 
 
 if __name__ == '__main__':
