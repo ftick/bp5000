@@ -145,6 +145,9 @@ class ManagementPage(wx.Panel):
                     ename = "LB"
                 page.sname = self.name
                 self.parent.AddPage(page, self.name + ": " + ename)
+            fb = FinalPage(self.parent, brackets)
+            fb.sname = self.name
+            self.parent.AddPage(fb, self.name + ": Finals")
 
     def save(self, e):
         dia = wx.FileDialog(self, "Save Bracket",

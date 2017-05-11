@@ -125,8 +125,8 @@ def brackets_r(bts, pdict):
         bracks.append([])
         for i in range(0, mcount):
             f = bool_r(bts[0])
-            m = match_r(bts[1:29])
-            bts = bts[29:]
+            m = match_r(bts[1:38])
+            bts = bts[38:]
             mlist[m.uniqueid] = m
             if f:
                 bracks[-1].append(m)
@@ -134,6 +134,11 @@ def brackets_r(bts, pdict):
         mtch = mlist[mid]
         if mtch._HASWL:
             mtch.wlink = mlist[mtch._WL]
+            if mtch.wlink.isspecial():
+                if not mtch.isspecial():
+                    mtch.upper = mtch._HASLL
+                else:
+                    mtch.upper = False
             del mtch._HASWL
             del mtch._WL
         if mtch._HASLL:
@@ -201,13 +206,24 @@ def match_w(match):
         p2code = int_w(match.part2.uniqueid)
 
     wincode = int_w(match.winner)
+    isspecial = bool_w(match.isspecial())
+    if match.isspecial():
+        isspecial += int_w(match.lowerleft)
+        isspecial += int_w(match.upperleft)
+    else:
+        isspecial += (int_w(0) + int_w(0))
 
     mp32 = mid + haswl + wcode + hasll + lcode + hasp1
-    return mp32 + p1code + hasp2 + p2code + wincode
+    return mp32 + p1code + hasp2 + p2code + wincode + isspecial
 
 
 def match_r(bts):
-    m = data.Match("L")
+    if not bool_r(bts[28]):
+        m = data.Match("L")
+    else:
+        m = data.SpecialMatch("G")
+        m.lowerleft = int_r(bts[29:33])
+        m.upperleft = int_r(bts[33:37])
     m.uniqueid = int_r(bts[:4])
     m._HASWL = bool_r(bts[4])
     m._WL = int_r(bts[5:9])
@@ -230,6 +246,7 @@ if __name__ == '__main__':
     l2 = data.genl(l)
     l3 = data.genl(l2)
     l4 = data.genl(l3)
+    data.fbracket([b, l, l2, l3, l4])
     write_bracket("test", [b, l, l2, l3, l4])
     print("wrote " + repr([b, l, l2, l3, l4]))
     r = read_bracket("test")
