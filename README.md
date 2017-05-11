@@ -6,12 +6,12 @@ meaning it supports triple elimination, quad elim etc as well as single & double
  - bracket generation and viewing
  - supports arbitrarily high elimination
  - match reporting
- 
+  - projected bracket by seed
+  - bracket saving/loading
+  - player placing when bracket is complete
+  
 ### What it doesn't do (yet)
- - projected bracket by seed
  - support for match scores (ex 3-1)
- - player placing when bracket is complete
- - bracket saving/loading
  - reseeding players in losers to avoid rematches
 
 ### What it will never do
