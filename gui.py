@@ -114,7 +114,7 @@ class ManagementPage(wx.Panel):
         genbtn = wx.Button(self.opanel, pos=(40, 150), label=t0)
         t3 = 'View player placings'
         placebtn = wx.Button(self.opanel, pos=(190, 150), label=t3)
-        savebtn = wx.Button(self.opanel, pos=(350, 150), label="Save")
+        savebtn = wx.Button(self.opanel, id=wx.ID_SAVE, pos=(350, 150), label="Save")
         self.hsplit.Add(self.elist, 1, wx.ALIGN_LEFT | wx.EXPAND)
         self.hsplit.Add(self.opanel, 1, wx.ALIGN_RIGHT | wx.EXPAND)
         self.SetSizer(self.hsplit)
