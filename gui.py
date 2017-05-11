@@ -401,6 +401,31 @@ class MatchDialog(wx.Dialog):
 
 
 class SpecMatchDialog(MatchDialog):
+    def __init__(self, parent, match):
+        if match.winner != 0:
+            self.match = match
+            self.parent = parent
+            wx.Dialog.__init__(self, parent)
+            self.vsplit = wx.BoxSizer(wx.VERTICAL)
+            self.ptop = wx.Panel(self)
+            self.pbot = wx.Panel(self)
+            nw = wx.Button(self.pbot, label="no result", pos=(100, 15))
+            self.vsplit.Add(self.ptop, 1, wx.ALIGN_TOP | wx.EXPAND)
+            self.vsplit.Add(self.pbot, 1, wx.ALIGN_BOTTOM | wx.EXPAND)
+            self.SetSizer(self.vsplit)
+
+            def nowinner(e):
+                self.match.settbd()
+                self.parent.updatebracketimg()
+                self.Close()
+
+            self.Bind(wx.EVT_BUTTON, nowinner, nw)
+            self.SetSize((300, 150))
+            self.SetTitle("Report Scores")
+            self.Show()
+        else:
+            super(SpecMatchDialog, self).__init__(parent, match)
+            
     def winner1(self, e):
         self.match.lowerleft = self.match.lowerleft - 1
         if self.match.lowerleft == 0:
