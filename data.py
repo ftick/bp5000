@@ -350,6 +350,23 @@ class SpecialMatch(Match):
         elif (part == self.part2):
             self.winner = 2
 
+    def settbd(self):
+        if self.wlink:
+            self.wlink.settbd()
+            w = None
+            if self.winner == 1:
+                w = self.part1
+            if self.winner == 2:
+                w = self.part2
+            if w:
+                if self.wlink.part1 == w:
+                    self.wlink.part1 = None
+                if self.wlink.part2 == w:
+                    self.wlink.part2 = None
+        self.winner = 0
+        self.upperleft = self.max_sets
+        self.lowerleft = self.max_sets - 1
+
     def isspecial(self):
         return True
 
@@ -374,6 +391,7 @@ def fbracket(brackets):
         upper.wlink = gf
         upper.upper = True
         lower.upper = False
+        gf.max_sets = r+2
 
 
 def f2b(b1, b2):

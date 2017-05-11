@@ -14,6 +14,15 @@ def write_bracket(fil, br):
 def read_bracket(fil):
     s = open(fil, 'rb')
     d = entire_r(s.read())
+    if not isinstance(d, str):
+        m = d[-1][0]
+        while not m.isspecial():
+            m = m.wlink
+        nem = 2
+        while not m is None:
+            m.max_sets = nem
+            nem += 1
+            m = m.wlink
     s.close()
     return d
 
