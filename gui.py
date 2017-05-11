@@ -53,6 +53,11 @@ class MFrame(wx.Frame):
         if dia.ShowModal() == wx.ID_CANCEL:
             return
         brs = bracketio.read_bracket(dia.GetPath())
+        if isinstance(brs, str):
+            w = wx.MessageDialog(self, brs, "Error", wx.ICON_ERROR)
+            w.ShowModal()
+            w.Destroy()
+            return
         name = dia.GetPath().replace(".bp5", "")
         pg = ManagementPage(self.nb, name, len(brs), brs)
         self.nb.InsertPage(0, pg, name)
@@ -185,7 +190,7 @@ class ManagementPage(wx.Panel):
         self.brackets = brackets
         if isinstance(brackets, str):
             errortext = "Need more entrants for that # of elims"
-            w = wx.MessageDialog(self.parent, errortext, "Error", wx.OK)
+            w = wx.MessageDialog(self.parent, errortext, "Error", wx.ICON_ERROR)
             w.ShowModal()
             w.Destroy()
             return
@@ -213,7 +218,7 @@ class ManagementPage(wx.Panel):
         brackets = data.create(players, int(self.elim))
         if isinstance(brackets, str):
             errortext = "Need more entrants for that # of elims"
-            w = wx.MessageDialog(self.parent, errortext, "Error", wx.OK)
+            w = wx.MessageDialog(self.parent, errortext, "Error", wx.ICON_ERROR)
             w.ShowModal()
             w.Destroy()
             return
