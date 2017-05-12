@@ -1,4 +1,5 @@
 import wx
+import sys
 import wx.lib.agw.flatnotebook as fnb
 import data
 import grf
@@ -91,7 +92,7 @@ class MFrame(wx.Frame):
 
     def quit_event(self, e):
         self.Destroy()
-        exit()
+        sys.exit(0)
 
 
 class ManagementPage(wx.Panel):
