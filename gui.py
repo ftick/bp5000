@@ -240,17 +240,26 @@ class ManagementPage(wx.Panel):
             self.parent.AddPage(fb, self.name + ": Finals")
 
     def save(self, e):
+        if not hasattr(self, "brackets"):
+            errortext = "Make bracket before doing that"
+            w = wx.MessageDialog(self.parent, errortext,
+                                 "Error", wx.ICON_ERROR)
+            w.ShowModal()
+            w.Destroy()
+            return
         dia = wx.FileDialog(self, "Save Bracket",
                             "", self.sname, "bp5000 bracket|*.bp5",
                             wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         if dia.ShowModal() == wx.ID_CANCEL:
             return
+
         bracketio.write_bracket(dia.GetPath(), self.brackets)
 
     def place(self, e):
         if not hasattr(self, "brackets"):
             errortext = "Make bracket before doing that"
-            w = wx.MessageDialog(self.parent, errortext, "Error", wx.OK)
+            w = wx.MessageDialog(self.parent, errortext,
+                                 "Error", wx.ICON_ERROR)
             w.ShowModal()
             w.Destroy()
             return
