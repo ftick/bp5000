@@ -141,7 +141,7 @@ class ManagementPage(wx.Panel):
                                               label="Tournament Options"),
                                  wx.VERTICAL)
         rsdstr = "Avoid rematches in losers bracket when possible"
-        self.reseed = wx.CheckBox(self.opanel, label = rsdstr)
+        self.reseed = wx.CheckBox(self.opanel, label=rsdstr)
         opsz.Add(self.reseed, 0, wx.EXPAND)
         self.helpsz = wx.StaticBoxSizer(wx.StaticBox(self.opanel,
                                                      label="Help"),
@@ -238,6 +238,8 @@ class ManagementPage(wx.Panel):
                     ename = "LB"
                 page.sname = self.name
                 self.parent.AddPage(page, self.name + ": " + ename)
+            if len(brackets) == 1:
+                return
             fb = FinalPage(self.parent, brackets)
             fb.sname = self.name
             self.parent.AddPage(fb, self.name + ": Finals")
@@ -305,6 +307,8 @@ class ManagementPage(wx.Panel):
             page.sname = self.name
             self.parent.AddPage(page, self.name + ": " + ename)
 
+        if len(brackets) == 1:
+            return  # Single elim, no finals
         fb = FinalPage(self.parent, brackets)
         fb.sname = self.name
         self.parent.AddPage(fb, self.name + ": Finals")
@@ -335,6 +339,8 @@ class ManagementPage(wx.Panel):
             page.sname = self.name+" [P]"
             self.parent.AddPage(page, self.name + " [P] : " + ename)
 
+        if len(brackets) == 1:
+            return
         fb = FinalPage(self.parent, brackets)
         fb.sname = self.name + " [P]"
         self.parent.AddPage(fb, self.name + " [P] : Finals")

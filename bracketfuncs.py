@@ -20,8 +20,9 @@ def projected(brackets):
                 if match.part1.seed < match.part2.seed:
                     better = match.part1
                 match.setwinner(better)
-                cond0 = match.wlink.isspecial()
-                if (match.wlink) and (not cond0) and (match.wlink not in nbr):
+                c0 = (match.wlink)
+                c1 = match.wlink not in nbr
+                if c0 and (not match.wlink.isspecial()) and c1:
                     nbr.append(match.wlink)
             br = nbr
 

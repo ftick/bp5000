@@ -16,7 +16,7 @@ def read_bracket(fil):
     d = entire_r(s.read())
     if not isinstance(d, str):
         m = d[-1][0]
-        while not m.isspecial():
+        while (m is not None) and (not m.isspecial()):
             m = m.wlink
         nem = 2
         while m is not None:

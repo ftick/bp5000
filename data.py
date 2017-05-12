@@ -287,7 +287,7 @@ def genl(matches, reseed=False):
         # come into losers too play or losers bracket
         # players play each other
         nlb = []
-        
+
         if(len(cwb) == len(clb)):
             rever = not rever
             for r in range(0, len(cwb)):
