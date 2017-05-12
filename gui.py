@@ -105,24 +105,109 @@ class ManagementPage(wx.Panel):
         self.hsplit = wx.BoxSizer(wx.HORIZONTAL)
         self.opanel = wx.Panel(self)
         t1 = "Entrants List (Ordered by seed), 1 per line"
-        wx.StaticText(self.opanel, label=t1)
+        t = wx.StaticText(self, label=t1)
         self.elist = wx.TextCtrl(self, style=wx.TE_MULTILINE)
-        updatebtn = wx.Button(self.opanel, pos=(40, 80), label='Update')
+        vsplit = wx.BoxSizer(wx.VERTICAL)
+        vsplit.Add(t, 0, 0, 0)
+        vsplit.Add(self.elist, 1, wx.ALIGN_BOTTOM | wx.EXPAND | wx.ALL)
+        updatebtn = wx.Button(self.opanel, label='Update')
         t2 = 'Projected Bracket'
-        projbtn = wx.Button(self.opanel, pos=(140, 80), label=t2)
+        projbtn = wx.Button(self.opanel, label=t2)
         t0 = 'Generate player list'
-        genbtn = wx.Button(self.opanel, pos=(40, 150), label=t0)
+        genbtn = wx.Button(self.opanel, label=t0)
         t3 = 'View player placings'
-        placebtn = wx.Button(self.opanel, pos=(190, 150), label=t3)
-        savebtn = wx.Button(self.opanel, id=wx.ID_SAVE, pos=(350, 150), label="Save")
-        self.hsplit.Add(self.elist, 1, wx.ALIGN_LEFT | wx.EXPAND)
+        placebtn = wx.Button(self.opanel, label=t3)
+        savebtn = wx.Button(self.opanel, id=wx.ID_SAVE,  label="Save")
+        self.hsplit.Add(vsplit, 1, wx.ALIGN_LEFT | wx.EXPAND)
         self.hsplit.Add(self.opanel, 1, wx.ALIGN_RIGHT | wx.EXPAND)
+        btnsz = wx.StaticBoxSizer(wx.StaticBox(self.opanel,
+                                               label="Tournament Utilities"),
+                                  wx.VERTICAL)
+        btnsz.Add(projbtn, 0, wx.EXPAND)
+        btnsz.Add(placebtn, 0, wx.EXPAND)
+        btnsz.Add(genbtn, 0, wx.EXPAND)
+        btnsz2 = wx.StaticBoxSizer(wx.StaticBox(self.opanel,
+                                                label="Tournament Management"),
+                                   wx.VERTICAL)
+        btnsz2.Add(updatebtn, 0, wx.EXPAND)
+        btnsz2.Add(savebtn, 0, wx.EXPAND)
+        bsz = wx.BoxSizer(wx.VERTICAL)
+        hsz = wx.BoxSizer(wx.HORIZONTAL)
+        hsz.Add(btnsz, 1, wx.ALIGN_LEFT | wx.EXPAND)
+        hsz.Add(btnsz2, 1, wx.ALIGN_RIGHT | wx.EXPAND)
+        bsz.Add(hsz, 1, wx.ALIGN_TOP | wx.EXPAND)
+        opsz = wx.StaticBoxSizer(wx.StaticBox(self.opanel,
+                                              label="Tournament Options"),
+                                 wx.VERTICAL)
+        # add options
+        self.helpsz = wx.StaticBoxSizer(wx.StaticBox(self.opanel,
+                                                     label="Help"),
+                                        wx.VERTICAL)
+        self.helplbl = wx.StaticText(self.opanel, label="")
+        self.helpsz.Add(self.helplbl)
+
+        osz = wx.BoxSizer(wx.HORIZONTAL)
+        osz.Add(opsz, 1, wx.ALIGN_RIGHT | wx.EXPAND)
+        osz.Add(self.helpsz, 1, wx.ALIGN_LEFT | wx.EXPAND)
+        bsz.Add(osz, 1, wx.ALIGN_BOTTOM | wx.EXPAND)
+        self.opanel.SetSizer(bsz)
         self.SetSizer(self.hsplit)
+
+        def blankhtxt(e):
+            self.helplbl.SetLabel("")
+            e.Skip()
         self.Bind(wx.EVT_BUTTON, self.update, updatebtn)
+
+        def updatehtxt(e):
+            ut = "Update or start the tournament with the provided entrants."
+            self.helplbl.SetLabel(ut)
+            self.helplbl.Wrap(self.helpsz.GetSize()[0])
+            e.Skip()
+
+        updatebtn.Bind(wx.EVT_ENTER_WINDOW, updatehtxt)
+        updatebtn.Bind(wx.EVT_LEAVE_WINDOW, blankhtxt)
         self.Bind(wx.EVT_BUTTON, self.proj, projbtn)
+
+        def projhtxt(e):
+            pt0 = "View the projected bracket, a bracket where the "
+            pt1 = "expected winners are shown by seed."
+            self.helplbl.SetLabel(pt0+pt1)
+            self.helplbl.Wrap(self.helpsz.GetSize()[0])
+            e.Skip()
+
+        projbtn.Bind(wx.EVT_ENTER_WINDOW, projhtxt)
+        projbtn.Bind(wx.EVT_LEAVE_WINDOW, blankhtxt)
         self.Bind(wx.EVT_BUTTON, self.gen, genbtn)
+
+        def genhtxt(e):
+            HELPFULTEXT5000 = "Generate a list of entrants from a template."
+            self.helplbl.SetLabel(HELPFULTEXT5000)
+            self.helplbl.Wrap(self.helpsz.GetSize()[0])
+            e.Skip()
+
+        genbtn.Bind(wx.EVT_ENTER_WINDOW, genhtxt)
+        genbtn.Bind(wx.EVT_LEAVE_WINDOW, blankhtxt)
         self.Bind(wx.EVT_BUTTON, self.place, placebtn)
+
+        def placehtxt(e):
+            p196 = "View each entrants placing in the tournament."
+            self.helplbl.SetLabel(p196)
+            self.helplbl.Wrap(self.helpsz.GetSize()[0])
+            e.Skip()
+
+        placebtn.Bind(wx.EVT_ENTER_WINDOW, placehtxt)
+        placebtn.Bind(wx.EVT_LEAVE_WINDOW, blankhtxt)
         self.Bind(wx.EVT_BUTTON, self.save, savebtn)
+
+        def savehtxt(e):
+            t234 = "Save the tournament to a file,"
+            t2345 = " so it can be loaded at a later time."
+            self.helplbl.SetLabel(t234+t2345)
+            self.helplbl.Wrap(self.helpsz.GetSize()[0])
+            e.Skip()
+
+        savebtn.Bind(wx.EVT_ENTER_WINDOW, savehtxt)
+        savebtn.Bind(wx.EVT_LEAVE_WINDOW, blankhtxt)
         if brackets:
             self.brackets = brackets
             i = -1
@@ -190,7 +275,8 @@ class ManagementPage(wx.Panel):
         self.brackets = brackets
         if isinstance(brackets, str):
             errortext = "Need more entrants for that # of elims"
-            w = wx.MessageDialog(self.parent, errortext, "Error", wx.ICON_ERROR)
+            w = wx.MessageDialog(self.parent, errortext,
+                                 "Error", wx.ICON_ERROR)
             w.ShowModal()
             w.Destroy()
             return
@@ -218,7 +304,8 @@ class ManagementPage(wx.Panel):
         brackets = data.create(players, int(self.elim))
         if isinstance(brackets, str):
             errortext = "Need more entrants for that # of elims"
-            w = wx.MessageDialog(self.parent, errortext, "Error", wx.ICON_ERROR)
+            w = wx.MessageDialog(self.parent,
+                                 errortext, "Error", wx.ICON_ERROR)
             w.ShowModal()
             w.Destroy()
             return
@@ -425,7 +512,7 @@ class SpecMatchDialog(MatchDialog):
             self.Show()
         else:
             super(SpecMatchDialog, self).__init__(parent, match)
-            
+
     def winner1(self, e):
         self.match.lowerleft = self.match.lowerleft - 1
         if self.match.lowerleft == 0:
