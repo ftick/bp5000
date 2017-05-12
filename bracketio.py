@@ -19,7 +19,7 @@ def read_bracket(fil):
         while not m.isspecial():
             m = m.wlink
         nem = 2
-        while not m is None:
+        while m is not None:
             m.max_sets = nem
             nem += 1
             m = m.wlink
