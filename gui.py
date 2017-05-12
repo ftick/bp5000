@@ -140,7 +140,9 @@ class ManagementPage(wx.Panel):
         opsz = wx.StaticBoxSizer(wx.StaticBox(self.opanel,
                                               label="Tournament Options"),
                                  wx.VERTICAL)
-        # add options
+        rsdstr = "Avoid rematches in losers bracket when possible"
+        self.reseed = wx.CheckBox(self.opanel, label = rsdstr)
+        opsz.Add(self.reseed, 0, wx.EXPAND)
         self.helpsz = wx.StaticBoxSizer(wx.StaticBox(self.opanel,
                                                      label="Help"),
                                         wx.VERTICAL)
@@ -281,7 +283,7 @@ class ManagementPage(wx.Panel):
         players = self.elist.GetValue().split("\n")
         if (players[-1] == ''):
             players = players[:-1]
-        brackets = data.create(players, int(self.elim))
+        brackets = data.create(players, int(self.elim), self.reseed.GetValue())
         self.brackets = brackets
         if isinstance(brackets, str):
             errortext = "Need more entrants for that # of elims"
@@ -311,7 +313,7 @@ class ManagementPage(wx.Panel):
         players = self.elist.GetValue().split("\n")
         if (players[-1] == ''):
             players = players[:-1]
-        brackets = data.create(players, int(self.elim))
+        brackets = data.create(players, int(self.elim), self.reseed.GetValue())
         if isinstance(brackets, str):
             errortext = "Need more entrants for that # of elims"
             w = wx.MessageDialog(self.parent,

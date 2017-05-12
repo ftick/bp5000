@@ -152,7 +152,7 @@ class Match:
 # then genl(b) to create losers brackets (repeat for more)
 # then fbracket([w, l, 2l, 3l ...]) to finalize bracket
 #
-def create(plist, elim):
+def create(plist, elim, reseed=False):
     #
     # entrants | elim
     #
@@ -166,7 +166,7 @@ def create(plist, elim):
         return "Elimination # too high for # of players"
     brackets = [genm(plist)]
     for i in range(1, elim):
-        brackets.append(genl(brackets[-1]))
+        brackets.append(genl(brackets[-1], reseed))
     fbracket(brackets)
     progbyes(brackets[0])
     return brackets
@@ -250,7 +250,7 @@ def gen(npart):
     return blist
 
 
-def genl(matches):
+def genl(matches, reseed=False):
     '''
     generates a losers bracket given a winners
     bracket.
@@ -281,16 +281,21 @@ def genl(matches):
     # new wb should be half size as old.
     # if it is the same, need to
     clb = lblist
+    rever = False
     while(len(clb) > 1):
         # 2 cases. either winners bracket players
         # come into losers too play or losers bracket
         # players play each other
         nlb = []
+        
         if(len(cwb) == len(clb)):
-            print("both #"+str(len(cwb)))
+            rever = not rever
             for r in range(0, len(cwb)):
                 m = Match("L")
-                cwb[r].llink = m
+                if rever and reseed:
+                    cwb[len(cwb)-r-1].llink = m
+                else:
+                    cwb[r].llink = m
                 clb[r].wlink = m
                 nlb.append(m)
             nwb = []
@@ -300,7 +305,6 @@ def genl(matches):
             cwb = nwb
 
         else:
-            print("lb#"+str(len(clb))+" wb#"+str(len(cwb)))
             for r in range(0, int(len(clb)/2)):
                 m = Match("L")
                 clb[r*2].wlink = m
