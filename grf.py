@@ -6,8 +6,16 @@ import math
 
 # Colour of the lines
 lcolor = (255, 195, 155)
-FONTPATH = "DejaVuSans.ttf"
+FONTPATH = ["DejaVuSans.ttf", "verdana.ttf", "Helvetica.dfont", "Helvetica.ttf"]
 
+def getFont(sz, num=0):
+    try:
+        return ImageFont.truetype(FONTPATH[num], sz)
+    except OSError:
+        try:
+            return getFont(sz, num+1)
+        except:
+            print("FATAL: no fonts found. install DejaVuSans, verdana or Helvetica")
 
 def drawmatch(match, highlight=False):
     str1 = match.part1.tag if match.part1 else "TBD"
@@ -18,7 +26,7 @@ def drawmatch(match, highlight=False):
                     color=((155, 155, 255) if not highlight else (255,
                                                                   155, 155)))
     d = ImageDraw.Draw(img)
-    font = ImageFont.truetype(FONTPATH, 20)
+    font = getFont(20)
     d.font = font
     d.rectangle((0, 0, 45, 80), fill=(0, 0, 200))
     d.text((5, 2), str(int1))
@@ -31,7 +39,7 @@ def drawmatch(match, highlight=False):
     d.rectangle((0, 28, 200, 48), fill=(200, 0, 0))
     wt = (" W:"+match.wlink.getmatchdisp() if match.wlink else "")
     lt = (" L:"+match.llink.getmatchdisp() if match.llink else "")
-    font = ImageFont.truetype(FONTPATH, 18)
+    font = getFont(18)
     d.font = font
     d.text((0, 28), match.getmatchdisp()+wt+lt)
     return img
@@ -46,7 +54,7 @@ def drawspmatch(match, highlight=False):
                     color=((155, 155, 255) if not highlight else (255,
                                                                   155, 155)))
     d = ImageDraw.Draw(img)
-    font = ImageFont.truetype(FONTPATH, 20)
+    font = getFont(20)
     d.font = font
     d.rectangle((0, 0, 45, 80), fill=(0, 0, 200))
     d.text((5, 2), str(int1))
@@ -58,7 +66,7 @@ def drawspmatch(match, highlight=False):
     d.rectangle((0, 28, 200, 48), fill=(200, 0, 0))
     wt = (" W:"+match.wlink.getmatchdisp() if match.wlink else "")
     lt = (" L:"+match.llink.getmatchdisp() if match.llink else "")
-    font = ImageFont.truetype(FONTPATH, 18)
+    font = getFont(18)
     d.font = font
     d.text((0, 28), match.getmatchdisp()+wt+lt)
     return img
