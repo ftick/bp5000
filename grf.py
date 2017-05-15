@@ -6,6 +6,7 @@ import math
 
 # Colour of the lines
 lcolor = (255, 195, 155)
+FONTPATH = "DejaVuSans.ttf"
 
 
 def drawmatch(match, highlight=False):
@@ -17,7 +18,7 @@ def drawmatch(match, highlight=False):
                     color=((155, 155, 255) if not highlight else (255,
                                                                   155, 155)))
     d = ImageDraw.Draw(img)
-    font = ImageFont.truetype("/usr/share/fonts/TTF/DejaVuSans.ttf", 20)
+    font = ImageFont.truetype(FONTPATH, 20)
     d.font = font
     d.rectangle((0, 0, 45, 80), fill=(0, 0, 200))
     d.text((5, 2), str(int1))
@@ -30,7 +31,7 @@ def drawmatch(match, highlight=False):
     d.rectangle((0, 28, 200, 48), fill=(200, 0, 0))
     wt = (" W:"+match.wlink.getmatchdisp() if match.wlink else "")
     lt = (" L:"+match.llink.getmatchdisp() if match.llink else "")
-    font = ImageFont.truetype("/usr/share/fonts/TTF/DejaVuSans.ttf", 18)
+    font = ImageFont.truetype(FONTPATH, 18)
     d.font = font
     d.text((0, 28), match.getmatchdisp()+wt+lt)
     return img
@@ -45,7 +46,7 @@ def drawspmatch(match, highlight=False):
                     color=((155, 155, 255) if not highlight else (255,
                                                                   155, 155)))
     d = ImageDraw.Draw(img)
-    font = ImageFont.truetype("/usr/share/fonts/TTF/DejaVuSans.ttf", 20)
+    font = ImageFont.truetype(FONTPATH, 20)
     d.font = font
     d.rectangle((0, 0, 45, 80), fill=(0, 0, 200))
     d.text((5, 2), str(int1))
@@ -57,7 +58,7 @@ def drawspmatch(match, highlight=False):
     d.rectangle((0, 28, 200, 48), fill=(200, 0, 0))
     wt = (" W:"+match.wlink.getmatchdisp() if match.wlink else "")
     lt = (" L:"+match.llink.getmatchdisp() if match.llink else "")
-    font = ImageFont.truetype("/usr/share/fonts/TTF/DejaVuSans.ttf", 18)
+    font = ImageFont.truetype(FONTPATH, 18)
     d.font = font
     d.text((0, 28), match.getmatchdisp()+wt+lt)
     return img
