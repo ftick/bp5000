@@ -6,7 +6,9 @@ import math
 
 # Colour of the lines
 lcolor = (255, 195, 155)
-FONTPATH = ["DejaVuSans.ttf", "verdana.ttf", "Helvetica.dfont", "Helvetica.ttf"]
+FONTPATH = ["DejaVuSans.ttf", "verdana.ttf", "Helvetica.dfont",
+            "Helvetica.ttf"]
+
 
 def getFont(sz, num=0):
     try:
@@ -15,7 +17,10 @@ def getFont(sz, num=0):
         try:
             return getFont(sz, num+1)
         except:
-            print("FATAL: no fonts found. install DejaVuSans, verdana or Helvetica")
+            s = "FATAL: no fonts found. install"
+            s2 = " DejaVuSans, verdana or Helvetica"
+            print(s+s2)
+
 
 def drawmatch(match, highlight=False):
     str1 = match.part1.tag if match.part1 else "TBD"

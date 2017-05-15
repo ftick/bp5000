@@ -389,10 +389,13 @@ class BracketPage(wx.Panel):
         self.updatebracketimg()
         self.Bind(wx.EVT_PAINT, self.paint)
         self.Bind(wx.EVT_MOUSE_EVENTS, self.mouse)
+        self.Bind(wx.EVT_ERASE_BACKGROUND, self.none)
+
+    def none(self, ev):
+        pass
 
     def paint(self, ev):
         dc = wx.PaintDC(ev.GetEventObject())
-        dc.Clear()
         w = min(self.GetSize()[0], self.img.GetWidth()-self.x)
         h = min(self.GetSize()[1], self.img.GetHeight()-self.y)
         bx, by = (0, 0)
