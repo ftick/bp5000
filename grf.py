@@ -8,11 +8,15 @@ import math
 lcolor = (255, 195, 155)
 FONTPATH = ["DejaVuSans.ttf", "verdana.ttf", "Helvetica.dfont",
             "Helvetica.ttf"]
+wdcheck = False
 
 
 def getFont(sz, num=0):
     try:
-        return ImageFont.truetype(FONTPATH[num], sz)
+        fnt = ImageFont.truetype(FONTPATH[num], sz)
+        if num == 1:
+            wdcheck = True
+        return fnt
     except OSError:
         try:
             return getFont(sz, num+1)
@@ -20,6 +24,10 @@ def getFont(sz, num=0):
             s = "FATAL: no fonts found. install"
             s2 = " DejaVuSans, verdana or Helvetica"
             print(s+s2)
+
+
+def getwd():
+    return ImageFont.truetype("wingdings.ttf", 20)
 
 
 def drawmatch(match, highlight=False):
@@ -37,8 +45,15 @@ def drawmatch(match, highlight=False):
     d.text((5, 2), str(int1))
     d.text((60, 2), str1)
     if match.winner != 0:
-        d.text((180, 53 if match.winner == 2 else 2),
-               u'\u2714', fill=(30, 150, 30))
+        if wdcheck:
+            oldfont = d.font
+            d.font = getwd()
+            d.text((180, 53 if match.winner == 2 else 2),
+                   "ü", fill=(30, 150, 30))
+            d.font = oldfont
+        else:
+            d.text((180, 53 if match.winner == 2 else 2),
+                   u'\u2714', fill=(30, 150, 30))
     d.text((5, 53), str(int2))
     d.text((60, 53), str2)
     d.rectangle((0, 28, 200, 48), fill=(200, 0, 0))
