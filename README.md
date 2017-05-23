@@ -29,16 +29,16 @@ Other versions may work but are untested.
 
 ### Screenshots
 The gui
-![Gui](/docs/examples/gui.png?raw=true "GUI")
+![Gui](docs/examples/gui.png?raw=true "GUI")
 
 
 full screenshots of a triple elimination bracket
 
 Winners Bracket
-![Winners bracket](/docs/examples/winners.png?raw=true "Winners Bracket")
+![Winners bracket](docs/examples/winners.png?raw=true "Winners Bracket")
 Losers Bracket
-![Losers bracket](/docs/examples/losers.png?raw=true "Losers Bracket")
+![Losers bracket](docs/examples/losers.png?raw=true "Losers Bracket")
 Losers 2x Bracket (when a player loses in losers bracket)
-![Losers 2x bracket](/docs/examples/losers2x.png?raw=true "Losers 2x Bracket")
+![Losers 2x bracket](docs/examples/losers2x.png?raw=true "Losers 2x Bracket")
 Finals Bracket (when there is 3 players left, similar to Grand Finals)
-![Finals bracket](/docs/examples/finals.png?raw=true "Finals Bracket")
+![Finals bracket](docs/examples/finals.png?raw=true "Finals Bracket")
