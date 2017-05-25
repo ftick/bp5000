@@ -8,14 +8,11 @@ import math
 lcolor = (255, 195, 155)
 FONTPATH = ["DejaVuSans.ttf", "verdana.ttf", "Helvetica.dfont",
             "Helvetica.ttf"]
-wdcheck = False
 
 
 def getFont(sz, num=0):
     try:
         fnt = ImageFont.truetype(FONTPATH[num], sz)
-        if num == 1:
-            wdcheck = True
         return fnt
     except OSError:
         try:
@@ -26,8 +23,27 @@ def getFont(sz, num=0):
             print(s+s2)
 
 
-def getwd():
-    return ImageFont.truetype("wingdings.ttf", 20)
+ckb = None
+
+
+def getchek():
+    global ckb
+    if ckb is None:
+        data = (b'iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAA'
+                b'A71pVKAAABVUlEQVR4nGNgGJKAkRTF7ErsVlxGXCGMHIx8Xw5'
+                b'9mU6cZkYGJoFAgS4+F75iBgYGht/Pf1992f3SioWgRiYGZpEE'
+                b'kSVcJlwRDAwMDH8//X3xeupr738//n1iIqRXKFJoBkzj/9//v7'
+                b'+e/trvz7s/DyHm4gG8TryFPNY8KQwMDAwM/xn+v13wNvbXw1+nE'
+                b'Y6CMbiZhAX8BFqEYoTmMjAwMLArsVsKBgl2weQ/bP5Q++38t7XIh'
+                b'sP9LBgs2MttwR3PwMDA8P3i9/WCYYKTGJgg8t/Oflv1acenVnSXw'
+                b'TX/+/bvPYwtmim6Gcb+/ez35beL3yZi8xbc2T9u/ziILvnvx7/Pr2'
+                b'e9Dv7/6/83/Jqv/dj578e/T8iS71e9z/3z6s9tbBpRNP///f/7l4Nf'
+                b'psH43y993/j1xNeFuDQyMKAnT0YGJjY5NiOGfwz/fj35dYHhP8M/fJo'
+                b'BGuqDl4b7We4AAAAASUVORK5CYII=')
+        import base64
+        from io import BytesIO
+        ckb = Image.open(BytesIO(base64.b64decode(data)))
+    return ckb
 
 
 def drawmatch(match, highlight=False):
@@ -45,15 +61,7 @@ def drawmatch(match, highlight=False):
     d.text((5, 2), str(int1))
     d.text((60, 2), str1)
     if match.winner != 0:
-        if wdcheck:
-            oldfont = d.font
-            d.font = getwd()
-            d.text((180, 53 if match.winner == 2 else 2),
-                   "ü", fill=(30, 150, 30))
-            d.font = oldfont
-        else:
-            d.text((180, 53 if match.winner == 2 else 2),
-                   u'\u2714', fill=(30, 150, 30))
+        img.paste(getchek(), (180, 56 if match.winner == 2 else 5), getchek())
     d.text((5, 53), str(int2))
     d.text((60, 53), str2)
     d.rectangle((0, 28, 200, 48), fill=(200, 0, 0))
@@ -203,3 +211,15 @@ if __name__ == '__main__':
     im3g = drawbracket(l2)
     imfg = drawfinals([b, l, l2])
     img.show()
+
+
+"""
+from PIL import Image, ImageDraw, ImageFont
+img = Image.new('RGBA', (15, 15))
+draw = ImageDraw.Draw(img)
+draw.font = ImageFont.truetype("DejaVuSans.ttf", 20)
+draw.text((0, -3), u'\u2714', fill=(30, 150, 30))
+## convert to base64
+
+b'iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAABVUlEQVR4nGNgGJKAkRTF7ErsVlxGXCGMHIx8Xw59mU6cZkYGJoFAgS4+F75iBgYGht/Pf1992f3SioWgRiYGZpEEkSVcJlwRDAwMDH8//X3xeupr738//n1iIqRXKFJoBkzj/9//v7+e/trvz7s/DyHm4gG8TryFPNY8KQwMDAwM/xn+v13wNvbXw1+nEY6CMbiZhAX8BFqEYoTmMjAwMLArsVsKBgl2weQ/bP5Q++38t7XIhsP9LBgs2MttwR3PwMDA8P3i9/WCYYKTGJgg8t/Oflv1acenVnSXwTX/+/bvPYwtmim6Gcb+/ez35beL3yZi8xbc2T9u/ziILvnvx7/Pr2e9Dv7/6/83/Jqv/dj578e/T8iS71e9z/3z6s9tbBpRNP///f/7l4NfpsH43y993/j1xNeFuDQyMKAnT0YGJjY5NiOGfwz/fj35dYHhP8M/fJoBGuqDl4b7We4AAAAASUVORK5CYII='
+"""
