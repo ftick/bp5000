@@ -6,9 +6,9 @@ import grf
 import bracketfuncs
 import bracketio
 #
-# Tested with wx version 3 and python 2.7
+# Tested with wx version 4 (phoenix) and python 3.6.1
 #
-
+VERSION_NUMBER = 1.0
 
 class MFrame(wx.Frame):
 
@@ -19,15 +19,19 @@ class MFrame(wx.Frame):
     def setup(self):
         menubar = wx.MenuBar()
         filem = wx.Menu()
+        helpm = wx.Menu()
         new = filem.Append(wx.ID_NEW, '&New Tournament')
         open_ = filem.Append(wx.ID_OPEN, '&Open Tournament')
         filem.AppendSeparator()
         self.Bind(wx.EVT_MENU, self.new_event, new)
         qmi = wx.MenuItem(filem, wx.ID_EXIT, '&Quit\tCtrl+W')
         filem.AppendItem(qmi)
+        about = helpm.Append(wx.ID_ANY, '&About BP5000')
         self.Bind(wx.EVT_MENU, self.quit_event, qmi)
         self.Bind(wx.EVT_MENU, self.load_event, open_)
+        self.Bind(wx.EVT_MENU, self.about_event, about)
         menubar.Append(filem, '&File')
+        menubar.Append(helpm, '&Help')
         self.SetMenuBar(menubar)
         p = wx.Panel(self)
         self.nb = fnb.FlatNotebook(p, agwStyle=fnb.FNB_X_ON_TAB)
@@ -47,6 +51,12 @@ class MFrame(wx.Frame):
         self.SetTitle('BP5000')
         self.Centre()
         self.Show(True)
+    def about_event(self, e):
+        hlptxt = (" https://github.com/isaiahr/bp5000 \n"
+            "Bracket Program 5000 developed by"
+            " Isaiah (IR).\n\nVersion "+str(VERSION_NUMBER))
+        dia = wx.MessageDialog(self, hlptxt, "About BP5000")
+        dia.ShowModal()
 
     def load_event(self, e):
         dia = wx.FileDialog(self, "Load Bracket",
