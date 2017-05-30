@@ -59,7 +59,7 @@ class MFrame(wx.Frame):
             w.ShowModal()
             w.Destroy()
             return
-        name = dia.GetPath().replace(".bp5", "")
+        name = dia.GetFilename().replace(".bp5", "")
         pg = ManagementPage(self.nb, name, len(brs), brs)
         self.nb.InsertPage(0, pg, name)
 
