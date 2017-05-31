@@ -408,6 +408,9 @@ class BracketPage(wx.Panel):
 
     def paint(self, ev):
         dc = wx.PaintDC(ev.GetEventObject())
+        if self.dirty:
+            dc.Clear()
+            self.dirty = False
         w = min(self.GetSize()[0], self.img.GetWidth()-self.x)
         h = min(self.GetSize()[1], self.img.GetHeight()-self.y)
         bx, by = (0, 0)
@@ -474,6 +477,7 @@ class BracketPage(wx.Panel):
 
     def updatebracketimg(self):
         self.img = piltowx(grf.drawbracket(self.bracket))
+        self.dirty = True
         self.Refresh()
 
 
@@ -481,6 +485,7 @@ class FinalPage(BracketPage):
 
     def updatebracketimg(self):
         self.img = piltowx(grf.drawfinals(self.bracket))
+        self.dirty = True
         self.Refresh()
 
 
