@@ -9,10 +9,11 @@ meaning it supports triple elimination, quad elim etc as well as single & double
   - projected bracket by seed
   - bracket saving/loading
   - player placing when bracket is complete
+  - avoiding rematches in losers bracket when possible
   
 ### What it doesn't do (yet)
  - support for match scores (ex 3-1)
- - reseeding players in losers to avoid rematches
+ - easily reorder participants
 
 ### What it will never do
  - manage setups / timeslots etc.
