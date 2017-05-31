@@ -10,6 +10,7 @@ import bracketio
 #
 VERSION_NUMBER = 1.0
 
+
 class MFrame(wx.Frame):
 
     def __init__(self, *args, **kwargs):
@@ -51,10 +52,11 @@ class MFrame(wx.Frame):
         self.SetTitle('BP5000')
         self.Centre()
         self.Show(True)
+
     def about_event(self, e):
         hlptxt = (" https://github.com/isaiahr/bp5000 \n"
-            "Bracket Program 5000 developed by"
-            " Isaiah (IR).\n\nVersion "+str(VERSION_NUMBER))
+                  "Bracket Program 5000 developed by"
+                  " Isaiah (IR).\n\nVersion "+str(VERSION_NUMBER))
         dia = wx.MessageDialog(self, hlptxt, "About BP5000")
         dia.ShowModal()
 
