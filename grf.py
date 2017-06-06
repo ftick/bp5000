@@ -3,12 +3,26 @@
 #
 from PIL import Image, ImageDraw, ImageFont
 import math
+import bracketfuncs
 
 # Colour of the lines
 lcolor = (255, 195, 155)
 FONTPATH = ["DejaVuSans.ttf", "verdana.ttf", "Helvetica.dfont",
             "Helvetica.ttf"]
 
+
+# mathematical functions for bracket positioning
+def fx(r):
+    return (220*r)-190
+
+def fx_inv(x):
+    return (x+190.0)/220.0
+
+def fy(m, r):
+    return 30*(2**r)+60*(2**r)*(m-1)-30
+
+def fy_inv(y, r):
+    return (((y+30)-(30*(2**r)))/(60*(2**r)))+1
 
 def getFont(sz, num=0):
     try:
@@ -139,6 +153,49 @@ def intersect(pt, rect):
     return cond1 and cond2
 
 
+def drawbracketFAST(bracket, viewport):
+    '''
+    FAST bracket drawing.
+    should not vary with bracket size
+    draws over million matches in less than quarter second
+    '''
+    import time
+    tm = time.time()
+    x = viewport[0]
+    y = viewport[1]
+    w = viewport[2]
+    h = viewport[3]
+    img = Image.new('RGBA', (w, h), color=(0, 0, 0))
+    # starting round.
+    rds = math.floor(fx_inv(x))
+    rdmax = math.ceil(fx_inv(x+w))
+    if rds < 1:
+        rds = 1
+    # matches to skip to get to viewport
+    matches = math.floor(fy_inv(y, rds))
+    # last match #
+    matches_max = math.ceil(fy_inv(y+h, rds))
+    mtchs = bracketfuncs.getmatchinrd(bracket, rds)[:matches_max]
+    xpos = fx(rds)
+    newmtch = []
+    while rds <= rdmax:
+        mn = 1
+        for mtch in mtchs:
+            im = drawmatch(mtch)
+            print("rds: "+str(rds)+" mn: "+str(mn))
+            print("("+str(fx(rds))+", "+str(fy(mn, rds)))
+            img.paste(im, (fx(rds)-x, fy(mn, rds)-y))
+            mn += 1
+            if mtch.wlink is not None and mtch.wlink not in newmtch:
+                newmtch.append(mtch.wlink)
+        mtchs = newmtch
+        newmtch = []
+        rds += 1
+    print("-----------")
+    print(str(time.time()-tm))
+    print("-----------")
+    return img
+    
 def drawbracket(bracket):
     br = bracket
     tm = br[0]
@@ -167,6 +224,7 @@ def drawbracket(bracket):
                 fakey = ny + (120*ymult/2)
 
             img.paste(im, (x, y))
+            print("("+str(x)+", "+str(y)+")")
             if ma.wlink is not None and not ma.wlink.isspecial():
                 d.rectangle((x+200, y+36, x+320, y+40), fill=lcolor)
             y += 120*ymult
@@ -198,18 +256,18 @@ def drawfinals(brackets):
 
 if __name__ == '__main__':
     import data
-    i = 32
+    i = 1048576
     plist = (['player %s ' % x for x in range(0, i)])
     b = data.genm(plist)
-    l = data.genl(b)
-    l2 = data.genl(l)
-    data.fbracket([b, l, l2])
-    import bracketfuncs
-    bracketfuncs.projected([b, l, l2])
-    img = drawbracket(b)
-    im2g = drawbracket(l)
-    im3g = drawbracket(l2)
-    imfg = drawfinals([b, l, l2])
+    #l = data.genl(b)
+    #l2 = data.genl(l)
+    #data.fbracket([b, l, l2])
+    #import bracketfuncs
+    #bracketfuncs.projected([b, l, l2])
+    img = drawbracketFAST(b, (0, 0, 2000, 2000))
+    #im2g = drawbracket(b)
+    #im3g = drawbracket(l2)
+    #imfg = drawfinals([b, l, l2])
     img.show()
 
 

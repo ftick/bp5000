@@ -135,8 +135,8 @@ class Match:
         return self.llink.itllink(num-1)
 
     def itwlink(self, num):
-        if(num == 1):
-            return self.wlink
+        if(num == 0):
+            return self
         return self.wlink.itwlink(num-1)
 
     def getmatchdisp(self):
@@ -189,7 +189,6 @@ def genm(players):
         i = i*2
     while (len(players) < i):
         players.append(None)
-    print(players)
     # now players should be a 2^n size bracket,
     # with byes filling up the rest. now transform tags -> participants
     pl = []

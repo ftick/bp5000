@@ -53,3 +53,20 @@ def placing(brackets):
         rd = nrd
         nrd = []
     return place
+
+
+def getmatchinrd(bracket, rd, nummatches = -1):
+    '''
+    given a round, returns the matches in it
+    '''
+    returner = []
+    retset = set()
+    for m in bracket:
+        mtch = m.itwlink(rd-1)
+        if mtch is not None and mtch.uniqueid not in retset:
+            retset.add(mtch.uniqueid)
+            returner.append(mtch)
+    if nummatches > 0:
+        return returner[:nummatches]
+    else:
+        return returner
