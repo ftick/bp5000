@@ -166,6 +166,7 @@ def drawbracketFAST(bracket, viewport):
     w = viewport[2]
     h = viewport[3]
     img = Image.new('RGBA', (w, h), color=(0, 0, 0))
+    d = ImageDraw.Draw(img)
     # starting round.
     rds = math.floor(fx_inv(x))
     rdmax = math.ceil(fx_inv(x+w))
@@ -175,19 +176,39 @@ def drawbracketFAST(bracket, viewport):
     matches = math.floor(fy_inv(y, rds))
     # last match #
     matches_max = math.ceil(fy_inv(y+h, rds))
+    span = 2**(rdmax-rds)
     mtchs = bracketfuncs.getmatchinrd(bracket, rds)[:matches_max]
     xpos = fx(rds)
     newmtch = []
-    while rds <= rdmax:
+    while fx(rds)-x <= fx(rdmax)-viewport[0]:
         mn = 1
+        bar = True
+        try:
+            if mtchs[0].wlink != mtchs[1].wlink:
+                bar = False
+        except:
+            bar = True
+            
         for mtch in mtchs:
             im = drawmatch(mtch)
             print("rds: "+str(rds)+" mn: "+str(mn))
-            print("("+str(fx(rds))+", "+str(fy(mn, rds)))
+            print("("+str(fx(rds)-x)+", "+str(fy(mn, rds)-y))
             img.paste(im, (fx(rds)-x, fy(mn, rds)-y))
+            if mtch.wlink is not None and not mtch.wlink.isspecial():
+                
+                d.rectangle((fx(rds)-x+200, fy(mn, rds)-y+36, fx(rds)-x+320, fy(mn, rds)-y+40), fill=lcolor)
+                if mn % 2 == 1 and bar:
+                    d.rectangle((fx(rds)-x+320, fy(mn, rds)-y+36, fx(rds)-x+324, fy(mn+1, rds)-y+40), fill=lcolor)
             mn += 1
             if mtch.wlink is not None and mtch.wlink not in newmtch:
                 newmtch.append(mtch.wlink)
+        try:
+            if mtchs[0].wlink != mtchs[1].wlink:
+                rds -= 1
+                x -= 220
+            print("sucess")
+        except:
+            print("Err")
         mtchs = newmtch
         newmtch = []
         rds += 1
@@ -256,15 +277,16 @@ def drawfinals(brackets):
 
 if __name__ == '__main__':
     import data
-    i = 1048576
+    i = 256
     plist = (['player %s ' % x for x in range(0, i)])
     b = data.genm(plist)
-    #l = data.genl(b)
-    #l2 = data.genl(l)
+    l = data.genl(b)
+    l2 = data.genl(l)
     #data.fbracket([b, l, l2])
     #import bracketfuncs
     #bracketfuncs.projected([b, l, l2])
-    img = drawbracketFAST(b, (0, 0, 2000, 2000))
+    print(fy(i, 1))
+    img = drawbracketFAST(b, (200, 7000, 2000, 1000))
     #im2g = drawbracket(b)
     #im3g = drawbracket(l2)
     #imfg = drawfinals([b, l, l2])
