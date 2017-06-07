@@ -37,6 +37,7 @@ class Match:
         self.part1 = None
         self.part2 = None
         self.winner = 0
+        self.loserlinked = False
         global uid
         self.uniqueid = uid
         uid += 1
@@ -291,6 +292,7 @@ def genl(matches, reseed=False):
             rever = not rever
             for r in range(0, len(cwb)):
                 m = Match("L")
+                m.loserlinked = True
                 if rever and reseed:
                     cwb[len(cwb)-r-1].llink = m
                 else:
