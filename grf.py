@@ -162,13 +162,112 @@ def drawbracketFAST(bracket, viewport):
     '''
     import time
     tm = time.time()
-    x = viewport[0]
-    y = viewport[1]
-    w = viewport[2]
-    h = viewport[3]
-    img = Image.new('RGBA', (w, h), color=(0, 0, 0))
+    vx = viewport[0]
+    vy = viewport[1]
+    vw = viewport[2]
+    vh = viewport[3]
+    img = Image.new('RGBA', (vw, vh), color=(0, 0, 0))
     d = ImageDraw.Draw(img)
+    
+    # the pan num for x, y, for laying out the match.
+    # we calculate the matches that should display at a specific location.
     # starting round.
+    startrd = 1 # include rounds starting at 1
+    var = 220
+    while var < vx:
+        # if we can skip a rd and are still offscreen, test the next round.
+        startrd += 1
+        var += 220
+    # Grab all matches for the starting round.
+    mx = var
+    matches = bracketfuncs.getmatchinrd(bracket, startrd)
+    # determine u/d for match.
+    m50s = matches
+    
+    while len(m50s) > 0:
+        nm50s = []
+        dire = False # 'dire'ction
+        for m50 in m50s:
+            m50.up = dire
+            dire = not dire
+            if m50.wlink is not None and m50.wlink not in nm50s and (not m50.wlink.isspecial()):
+               nm50s.append(m50.wlink)
+        m50s = nm50s
+        
+        
+    # could draw all these matches + children. while an improvement,  this is still too slow.
+    # figure out y for first match.
+    # y = 0
+    spacing = 120 # 120 y px between each match
+    fm = bracket[0]
+    curmy = 0
+    first = True
+    while fm != matches[0].wlink:
+        if (not fm.loserlinked) and (not first):
+            curmy = (curmy + spacing) / 2
+            spacing = spacing * 2
+        first = False
+        fm = fm.wlink
+    # now curmy = ypos of first match
+    # delta = current match y - first match y * 2
+    # so nth match y = fmmatchinrdy + delta(n-1)
+    delta = spacing
+    startmatch = 0
+    var = curmy
+    while var < vy:
+        startmatch += 1
+        var += delta
+    my = var
+        
+    #
+    # have first match now
+    # 
+    
+    # (pos to put match) = abs pos of match - viewport pos
+    #
+    #
+    
+    matches = matches[startmatch:]
+    mdrawnid = set()
+    print(" -- -- - - ")
+    print("Starting @ "+ repr((mx, my)))
+    print("delta: "+str(delta)+", curmy+ "+str(curmy))
+    print(" -- - -- - ")
+    for m in matches:
+        match = m
+        img.paste(drawmatch(match), (int(mx - vx), int(my - vy)))
+        mdrawnid.add(match.uniqueid)
+        print("first: draw "+ str(match.up)+" "+ str(match)+ " @ "+ repr((int(mx - vx), int(my - vy))))
+        print("")
+        lastchain = False
+        if my - vy > vw:
+            lastchain = True
+        mx_old = mx
+        my_old = my
+        fakedelta = delta
+        while match.wlink is not None and (not match.wlink.isspecial()):
+            oldm = match
+            match = match.wlink
+            mx += 220
+            if not match.loserlinked:
+                if oldm.up:
+                    my = (my + my - fakedelta) / 2
+                else:
+                    my = (my + my + fakedelta) / 2
+                fakedelta = fakedelta * 2
+            if mx - vx > vw:
+                break
+            if match.uniqueid not in mdrawnid:
+                mdrawnid.add(match.uniqueid)
+                img.paste(drawmatch(match), (int(mx - vx), int(my - vy)))
+                print("draw "+ str(match.up)+" "+str(match)+ " @ "+ repr((int(mx - vx), int(my - vy))))
+        if lastchain:
+            break
+        mx = mx_old
+        my = my_old + delta
+    return img
+    
+'''    
     rds = math.floor(fx_inv(x))
     rdmax = math.ceil(fx_inv(x+w))
     if rds < 1:
@@ -238,7 +337,7 @@ def drawbracketFAST(bracket, viewport):
     #print(str(time.time()-tm))
     #print("-----------")
     return img
-    
+'''    
 def drawbracket(bracket):
     br = bracket
     tm = br[0]
@@ -308,11 +407,11 @@ if __name__ == '__main__':
     #import bracketfuncs
     #bracketfuncs.projected([b, l, l2])
     #print(fy(i, 1))
-    img = drawbracket(l)
-    #im2g = drawbracket(b)
+    img = drawbracketFAST(b, (0, 0, 2000, 1000))
+    im2g = drawbracketFAST(b, (500, 100, 900, 500))
     #im3g = drawbracket(l2)
     #imfg = drawfinals([b, l, l2])
-    img.show()
+    im2g.show()
 
 
 """
