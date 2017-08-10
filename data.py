@@ -37,6 +37,10 @@ class Match:
         self.part1 = None
         self.part2 = None
         self.winner = 0
+        # ##
+        # Loser linked match = a match where one player is not in this bracket before this match
+        # (ie they just lost a match in winners)
+        #
         self.loserlinked = False
         global uid
         self.uniqueid = uid
@@ -401,5 +405,6 @@ def fbracket(brackets):
 
 def f2b(b1, b2):
     nmatch = Match("F")
+    nmatch.loserlinked = True
     finalm(b1[0]).llink = nmatch
     finalm(b2[0]).wlink = nmatch

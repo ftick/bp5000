@@ -7,8 +7,8 @@ import bracketfuncs
 
 # Colour of the lines
 lcolor = (255, 195, 155)
-FONTPATH = ["DejaVuSans.ttf", "verdana.ttf", "Helvetica.dfont",
-            "Helvetica.ttf"]
+FONTPATH = ["verdana.ttf", "Helvetica.dfont",
+            "Helvetica.ttf", "DejaVuSans.ttf"]
 
 
 # mathematical functions for bracket positioning
@@ -25,6 +25,7 @@ def fy_inv(y, r):
     return (((y+30)-(30*(2**r)))/(60*(2**r)))+1
 
 def getFont(sz, num=0):
+   # import pdb; pdb.set_trace()
     try:
         fnt = ImageFont.truetype(FONTPATH[num], sz)
         return fnt
@@ -176,40 +177,66 @@ def drawbracketFAST(bracket, viewport):
     matches = math.floor(fy_inv(y, rds))
     # last match #
     matches_max = math.ceil(fy_inv(y+h, rds))
-    span = 2**(rdmax-rds)
-    mtchs = bracketfuncs.getmatchinrd(bracket, rds)[matches:matches_max]
+    sav0 = bracketfuncs.getmatchinrd(bracket, rds)
+    fm = bracket[0]
+    fakerds = 0
+    xboost = 0
+    a = True
+    while fm != sav0[0]:
+        print(fm)
+        if fm.loserlinked:
+            fakerds += 1
+            xboost += 220
+        #rds -= 1
+        #x -= 220
+        ## loserlink first round regardless
+        if a and bracket[0].wlink != bracket[1].wlink:
+            fakerds += 1
+            xboost += 220
+            a = False
+        fm = fm.wlink
+    print("Fakes: "+str(fakerds))
+    rds = rds - fakerds
+    mtchs = sav0[matches:matches_max]
     xpos = fx(rds)
     newmtch = []
     bar = False
+    
     while fx(rds)-x <= fx(rdmax)-viewport[0]:
         mn = matches+1
         for mtch in mtchs:
+            print(str(mtch)+" RDNUM: "+str(rds)+ " mn: "+str(mn)+ " x: "+str(x)+ " y: "+str(y) + " xboost: "+str(xboost))
             im = drawmatch(mtch)
-            print("rds: "+str(rds)+" mn: "+str(mn))
-            print("("+str(fx(rds)-x)+", "+str(fy(mn, rds)-y))
+            #print("rds: "+str(rds)+" mn: "+str(mn))
+            #print("("+str(fx(rds)-x)+", "+str(fy(mn, rds)-y))
             
             if mtch.wlink is not None and not mtch.wlink.isspecial():
                 
-                d.rectangle((fx(rds)-x+200, fy(mn, rds)-y+36, fx(rds)-x+320, fy(mn, rds)-y+40), fill=lcolor)
-                if not mtch.loserlinked:
-                    d.rectangle((fx(rds)-x+100, fy(mn*2 -1, rds-1)-y+36, fx(rds)-x+104, fy(mn*2, rds-1)-y+40), fill=lcolor)
-            img.paste(im, (fx(rds)-x, fy(mn, rds)-y))
+                d.rectangle((fx(rds)-x+200 + xboost, fy(mn, rds)-y+36, fx(rds)-x+320+xboost, fy(mn, rds)-y+40), fill=lcolor)
+            if not mtch.loserlinked:
+                d.rectangle((fx(rds)-x+100 + xboost, fy(mn*2 -1, rds-1)-y+36, fx(rds)-x+104+xboost, fy(mn*2, rds-1)-y+40), fill=lcolor)
+            img.paste(im, (fx(rds)-x+xboost, fy(mn, rds)-y))
             mn += 1
-            if mtch.wlink is not None and mtch.wlink not in newmtch:
+            if mtch.wlink is not None and not mtch.wlink.isspecial() and mtch.wlink not in newmtch:
                 newmtch.append(mtch.wlink)
         bar = not mtchs[0].loserlinked
+        if len(newmtch) == 0:
+            break
         if newmtch[0].loserlinked:
             rds -= 1
-            x -= 220
-            print("loserrd")
+            xboost += 220
+            pass
+            #print("loserrd")
+      #  elif newmtch[0].wlink and newmtch[0].wlink.isspecial:
+        ##      xboost += 220
         else:
             matches = math.floor(matches/2)
         mtchs = newmtch
         newmtch = []
         rds += 1
-    print("-----------")
-    print(str(time.time()-tm))
-    print("-----------")
+    #print("-----------")
+    #print(str(time.time()-tm))
+    #print("-----------")
     return img
     
 def drawbracket(bracket):
@@ -272,16 +299,16 @@ def drawfinals(brackets):
 
 if __name__ == '__main__':
     import data
-    i = 1024*8*8*8
+    i = 64
     plist = (['player %s ' % x for x in range(0, i)])
     b = data.genm(plist)
-    #l = data.genl(b)
+    l = data.genl(b)
     #l2 = data.genl(l)
     #data.fbracket([b, l, l2])
     #import bracketfuncs
     #bracketfuncs.projected([b, l, l2])
-    print(fy(i, 1))
-    img = drawbracketFAST(b, (0, 800000, 2000, 1000))
+    #print(fy(i, 1))
+    img = drawbracket(l)
     #im2g = drawbracket(b)
     #im3g = drawbracket(l2)
     #imfg = drawfinals([b, l, l2])

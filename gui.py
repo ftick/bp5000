@@ -392,12 +392,15 @@ class BracketPage(wx.Panel):
         self.bracket = bracket
         self.oldx = None
         self.oldy = None
-        self.x = 0
-        self.y = 0
+
+        self.ax = 0
+        self.ay = 0
         self.bx = 0
         self.by = 0
         self.extimg = None
         wx.Panel.__init__(self, parent)
+        self.x = 0
+        self.y = 0
         self.updatebracketimg()
         self.Bind(wx.EVT_PAINT, self.paint)
         self.Bind(wx.EVT_MOUSE_EVENTS, self.mouse)
@@ -430,6 +433,9 @@ class BracketPage(wx.Panel):
             by = int(.5*(self.GetSize()[1] - self.img.GetHeight()))
             self.y = 0
             self.by = by
+        # update if within 100px of borders
+        if ((self.x < 100 and self.ax > 0) or (self.y < 100 and self.ay > 0)) or ((self.x + w > 1900) or (self.y + h > 1900)):
+            self.updatebracketimg()
         sub = wx.Rect(self.x, self.y, w, h)
         bimg = wx.BitmapFromImage(self.img.GetSubImage(sub))
         dc.DrawBitmap(bimg, bx, by)
@@ -464,7 +470,7 @@ class BracketPage(wx.Panel):
             self.oldy = None
         old = self.extimg
         mevx, mevy = (self.x+x-self.bx, self.y+y-self.by)
-        self.extimg = grf.mouse_ev(mevx, mevy, self.bracket)
+        self.extimg = None# grf.mouse_ev(mevx, mevy, self.bracket)
         if old != self.extimg:
             self.Refresh()
         if comp and (self.extimg is not None) and self.extimg == self.extimgc:
@@ -476,7 +482,29 @@ class BracketPage(wx.Panel):
                     MatchDialog(self, m)
 
     def updatebracketimg(self):
-        self.img = piltowx(grf.drawbracket(self.bracket))
+        #self.x, self.y -> screen position relative to buffer
+        #self.ax, self.ay -> buffer loc
+        #
+        print("TrueposORIG: ("+str(self.ax+self.x) + ", "+str(self.ay+self.y)+")")
+        box = (2000, 2000)
+        self.ax = int(self.ax + self.x - ((box[0]-self.GetSize()[0])/2))
+        self.ay = int(self.ay + self.y - ((box[1]-self.GetSize()[1])/2))
+        dy = 0
+        dx = 0
+        if self.ax < 0:
+            dx = self.ax
+            self.ax = 0
+        if self.ay < 0:
+            dy = self.ay
+            self.ay = 0
+        self.x = int((box[0]-self.GetSize()[0])/2) + dx
+        self.y = int((box[1]-self.GetSize()[1])/2) + dy
+        self.oldx = None
+        self.oldy = None
+        print("Updating img: @ ("+str(self.ax)+", "+str(self.ay)+") setxy ("+str(self.x)+", "+str(self.y)+")") 
+        print("TrueposAFT: ("+str(self.ax+self.x) + ", "+str(self.ay+self.y)+")")
+        imgp = grf.drawbracketFAST(self.bracket, (self.ax, self.ay, box[0], box[1]))
+        self.img = piltowx(imgp)
         self.dirty = True
         self.Refresh()
 
