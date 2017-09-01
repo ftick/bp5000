@@ -5,10 +5,11 @@ import data
 import grf
 import bracketfuncs
 import bracketio
+from options import Options
 #
 # Tested with wx version 4 (phoenix) and python 3.6.1
 #
-VERSION_NUMBER = 1.0
+VERSION_NUMBER = 2.0000
 
 
 class MFrame(wx.Frame):
@@ -21,6 +22,7 @@ class MFrame(wx.Frame):
         menubar = wx.MenuBar()
         filem = wx.Menu()
         helpm = wx.Menu()
+        setm = wx.Menu()
         new = filem.Append(wx.ID_NEW, '&New Tournament')
         open_ = filem.Append(wx.ID_OPEN, '&Open Tournament')
         filem.AppendSeparator()
@@ -28,10 +30,14 @@ class MFrame(wx.Frame):
         qmi = wx.MenuItem(filem, wx.ID_EXIT, '&Quit\tCtrl+W')
         filem.AppendItem(qmi)
         about = helpm.Append(wx.ID_ANY, '&About BP5000')
+        options = setm.Append(wx.ID_ANY, '&Options')
         self.Bind(wx.EVT_MENU, self.quit_event, qmi)
         self.Bind(wx.EVT_MENU, self.load_event, open_)
         self.Bind(wx.EVT_MENU, self.about_event, about)
+        self.Bind(wx.EVT_MENU, self.options_event, options)
+        self.options = Options()
         menubar.Append(filem, '&File')
+        menubar.Append(setm, '&Settings')
         menubar.Append(helpm, '&Help')
         self.SetMenuBar(menubar)
         p = wx.Panel(self)
@@ -106,6 +112,33 @@ class MFrame(wx.Frame):
         self.Destroy()
         sys.exit(0)
 
+    def options_event(self, e):
+        d = wx.Dialog(None)
+        
+        o = self.options
+        y = 10
+        components = []
+        for opt in o.listopt():
+            t = type(opt[2])
+            if t == type(2):
+                #sc = wx.SpinCtrl(d, pos=(180, y),
+                pass
+            if t == type(True):
+                chk = wx.CheckBox(d, pos=(180, y) , label=opt[1])
+                chk.SetValue(opt[2])
+                if opt[0] == "exprender":
+                    for i01 in range(0, self.nb.GetPageCount()):
+                        if isinstance(self.nb.GetPage(i01), BracketPage):
+                            chk.Disable()
+                components.append((opt[0], chk))
+            y += 30
+        d.SetTitle("Options")
+        d.SetSize((250, y+100))
+        d.ShowModal()
+        for x in components:
+            o.update(**{x[0]:x[1].GetValue()})
+        self.options = o
+        
 
 class ManagementPage(wx.Panel):
 
@@ -434,8 +467,9 @@ class BracketPage(wx.Panel):
             self.y = 0
             self.by = by
         # update if within 100px of borders
-        if ((self.x < 100 and self.ax > 0) or (self.y < 100 and self.ay > 0)) or ((self.x + w > 1900) or (self.y + h > 1900)):
-            self.updatebracketimg()
+        if self.GetParent().GetParent().GetParent().options.get("exprender"):
+            if ((self.x < 100 and self.ax > 0) or (self.y < 100 and self.ay > 0)) or ((self.x + w > 1900) or (self.y + h > 1900)):
+                self.updatebracketimg()
         sub = wx.Rect(self.x, self.y, w, h)
         bimg = wx.BitmapFromImage(self.img.GetSubImage(sub))
         dc.DrawBitmap(bimg, bx, by)
@@ -470,7 +504,10 @@ class BracketPage(wx.Panel):
             self.oldy = None
         old = self.extimg
         mevx, mevy = (self.x+x-self.bx, self.y+y-self.by)
-        self.extimg = None# grf.mouse_ev(mevx, mevy, self.bracket)
+        if self.GetParent().GetParent().GetParent().options.get("exprender"):
+            self.extimg = None
+        else:
+            self.extimg = grf.mouse_ev(mevx, mevy, self.bracket)
         if old != self.extimg:
             self.Refresh()
         if comp and (self.extimg is not None) and self.extimg == self.extimgc:
@@ -485,6 +522,14 @@ class BracketPage(wx.Panel):
         #self.x, self.y -> screen position relative to buffer
         #self.ax, self.ay -> buffer loc
         #
+        if not self.GetParent().GetParent().GetParent().options.get("exprender"):
+            self.ax = 0
+            self.ay = 0
+            self.img = piltowx(grf.drawbracket(self.bracket))
+            self.dirty = True
+            self.Refresh()
+            return
+
         print("TrueposORIG: ("+str(self.ax+self.x) + ", "+str(self.ay+self.y)+")")
         box = (2000, 2000)
         self.ax = int(self.ax + self.x - ((box[0]-self.GetSize()[0])/2))
