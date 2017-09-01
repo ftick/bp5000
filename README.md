@@ -26,6 +26,8 @@ wxPython==4.0.0a2
 
 Pillow==4.1.0
 
+NOTE: Pillow >= 4.2 is broken because of https://github.com/python-pillow/Pillow/issues/2614. if you encounter this problem, downgrading pillow to an older version will work. Supposedly this has been fixed in future versions (I am not sure which version it is fixed in however)
+
 Other versions may work but are untested.
 
 ### Screenshots
