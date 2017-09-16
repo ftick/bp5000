@@ -2,7 +2,7 @@ import struct
 import data
 
 # used for file version compatibility
-VERSION_CODE = 1
+VERSION_CODE = 2
 
 
 def write_bracket(fil, br):
@@ -134,8 +134,8 @@ def brackets_r(bts, pdict):
         bracks.append([])
         for i in range(0, mcount):
             f = bool_r(bts[0])
-            m = match_r(bts[1:38])
-            bts = bts[38:]
+            (m, tbtsr) = match_r(bts[1:])
+            bts = bts[tbtsr:]
             mlist[m.uniqueid] = m
             if f:
                 bracks[-1].append(m)
@@ -219,20 +219,35 @@ def match_w(match):
     if match.isspecial():
         isspecial += int_w(match.lowerleft)
         isspecial += int_w(match.upperleft)
+        isspecial += int_w(len(match.scores))
+        for i in range(0, len(match.scores)):
+            isspecial += int_w(match.scores[i][0])
+            isspecial += int_w(match.scores[i][1])
+            
     else:
-        isspecial += (int_w(0) + int_w(0))
+        isspecial += (int_w(match.p1score) + int_w(match.p2score))
 
     mp32 = mid + haswl + wcode + hasll + lcode + hasp1
     return mp32 + p1code + hasp2 + p2code + wincode + isspecial
 
 
 def match_r(bts):
+    tbtsr = 38# total bytes read
     if not bool_r(bts[28]):
         m = data.Match("L")
+        m.p1score = int_r(bts[29:33])
+        m.p2score = int_r(bts[33:37])
     else:
         m = data.SpecialMatch("G")
         m.lowerleft = int_r(bts[29:33])
         m.upperleft = int_r(bts[33:37])
+        mnum = int_r(bts[37:41])
+        tbtsr = 42
+        m.scores = []
+        for i in range(0, mnum):
+            #import pdb; pdb.set_trace()
+            m.scores.append((int_r(bts[41 + (i*8):45+(i*8)]),int_r(bts[45+(i*8):49+(i*8)])))
+            tbtsr = 50+(i*8)
     m.uniqueid = int_r(bts[:4])
     m._HASWL = bool_r(bts[4])
     m._WL = int_r(bts[5:9])
@@ -243,7 +258,7 @@ def match_r(bts):
     m._HASP2 = bool_r(bts[19])
     m._P2 = int_r(bts[20:24])
     m.winner = int_r(bts[24:28])
-    return m
+    return (m, tbtsr)
 
 
 if __name__ == '__main__':
