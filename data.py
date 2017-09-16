@@ -37,6 +37,8 @@ class Match:
         self.part1 = None
         self.part2 = None
         self.winner = 0
+        self.p1score = 0
+        self.p2score = 0
         # ##
         # Loser linked match = a match where one player is not in this bracket before this match
         # (ie they just lost a match in winners)
@@ -101,6 +103,13 @@ class Match:
         else:
             # TODO: assign loser a placing.
             pass
+    def setscore(self, p1s, p2s):
+        if p1s > p2s:
+            self.setwinner(self.part1)
+        else:
+            self.setwinner(self.part2)
+        self.p1score = p1s
+        self.p2score = p2s
 
     def settbd(self):
         w = self.part1 if self.winner == 1 else self.part2
@@ -340,6 +349,8 @@ class SpecialMatch(Match):
         self.part1 = None
         self.part2 = None
         self.winner = 0
+        # array of 2-tuples, showing game counts for multiple sets
+        self.scores = []
         global uid
         self.uniqueid = uid
         uid += 1
@@ -358,8 +369,23 @@ class SpecialMatch(Match):
             self.winner = 1
         elif (part == self.part2):
             self.winner = 2
+    def doscore(self, p1s, p2s):
+        # returns true possibly
+        self.scores.append((p1s, p2s))
+        if p1s > p2s:
+            self.lowerleft -= 1
+            if self.lowerleft == 0:
+                self.setwinner(self.part1, self.upperleft)
+                return True
+        else:
+            self.upperleft -= 1
+            if self.upperleft == 0:
+                self.setwinner(self.part2, self.lowerleft)
+                return True
+        return False
 
     def settbd(self):
+        self.scores = []
         if self.wlink:
             self.wlink.settbd()
             w = None

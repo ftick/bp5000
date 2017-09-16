@@ -62,6 +62,8 @@ def getchek():
 
 
 def drawmatch(match, highlight=False):
+    if match.isspecial():
+        return drawspmatch(match, highlight)
     str1 = match.part1.tag if match.part1 else "TBD"
     int1 = match.part1.seed if match.part1 else ""
     str2 = match.part2.tag if match.part2 else "TBD"
@@ -76,7 +78,9 @@ def drawmatch(match, highlight=False):
     d.text((5, 2), str(int1))
     d.text((60, 2), str1)
     if match.winner != 0:
-        img.paste(getchek(), (180, 56 if match.winner == 2 else 5), getchek())
+        #img.paste(getchek(), (180, 56 if match.winner == 2 else 5), getchek())
+        d.text((180, 2), str(match.p1score), fill=((0,120,0) if match.winner==1 else (0,0,0)))
+        d.text((180, 53), str(match.p2score), fill=((0,120,0) if match.winner==2 else (0,0,0)))
     d.text((5, 53), str(int2))
     d.text((60, 53), str2)
     d.rectangle((0, 28, 200, 48), fill=(200, 0, 0))
@@ -102,10 +106,16 @@ def drawspmatch(match, highlight=False):
     d.rectangle((0, 0, 45, 80), fill=(0, 0, 200))
     d.text((5, 2), str(int1))
     d.text((60, 2), str1)
-    d.text((180, 2), str(match.upperleft), fill=(0, 170, 0))
+    #d.text((180, 2), str(match.upperleft), fill=(0, 170, 0))
     d.text((5, 53), str(int2))
     d.text((60, 53), str2)
-    d.text((180, 53), str(match.lowerleft), fill=(0, 170, 0))
+    #d.text((180, 53), str(match.lowerleft), fill=(0, 170, 0))
+    x01 = 170
+    for m in match.scores:
+        #first = upper
+        d.text((x01, 2), str(m[0]), fill = (0, 120, 0) if m[0] > m[1] else (0,0,0))
+        d.text((x01, 53), str(m[1]), fill = (0, 120, 0) if m[1] > m[0] else (0,0,0))
+        x01 += 20
     d.rectangle((0, 28, 200, 48), fill=(200, 0, 0))
     wt = (" W:"+match.wlink.getmatchdisp() if match.wlink else "")
     lt = (" L:"+match.llink.getmatchdisp() if match.llink else "")

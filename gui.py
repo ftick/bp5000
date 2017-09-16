@@ -572,7 +572,8 @@ class MatchDialog(wx.Dialog):
         self.ptop = wx.Panel(self)
         self.pbot = wx.Panel(self)
         pan = ScoresPanel(self.ptop, match, self)
-        nw = wx.Button(self.pbot, label="no result", pos=(100, 15))
+        nw = wx.Button(self.pbot, label="no result", pos=(50, 15))
+        rw = wx.Button(self.pbot, label="confirm", pos=(150, 15))
         self.vsplit.Add(self.ptop, 1, wx.ALIGN_TOP | wx.EXPAND)
         self.vsplit.Add(self.pbot, 1, wx.ALIGN_BOTTOM | wx.EXPAND)
         self.SetSizer(self.vsplit)
@@ -581,9 +582,15 @@ class MatchDialog(wx.Dialog):
             self.match.settbd()
             self.parent.updatebracketimg()
             self.Close()
+        
+        def setwinner(e):
+            self.match.setscore(pan.w1.GetValue(), pan.w2.GetValue())
+            self.parent.updatebracketimg()
+            self.Close()
 
         self.Bind(wx.EVT_BUTTON, nowinner, nw)
-        self.SetSize((300, 150))
+        self.Bind(wx.EVT_BUTTON, setwinner, rw)
+        self.SetSize((300, 170))
         self.SetTitle("Report Scores")
         self.Show()
 
@@ -600,68 +607,52 @@ class MatchDialog(wx.Dialog):
 
 class SpecMatchDialog(MatchDialog):
     def __init__(self, parent, match):
-        if match.winner != 0:
-            self.match = match
-            self.parent = parent
-            wx.Dialog.__init__(self, parent)
-            self.vsplit = wx.BoxSizer(wx.VERTICAL)
-            self.ptop = wx.Panel(self)
-            self.pbot = wx.Panel(self)
-            nw = wx.Button(self.pbot, label="no result", pos=(100, 15))
-            self.vsplit.Add(self.ptop, 1, wx.ALIGN_TOP | wx.EXPAND)
-            self.vsplit.Add(self.pbot, 1, wx.ALIGN_BOTTOM | wx.EXPAND)
-            self.SetSizer(self.vsplit)
+        self.match = match
+        self.parent = parent
+        wx.Dialog.__init__(self, parent)
+        self.vsplit = wx.BoxSizer(wx.VERTICAL)
+        self.ptop = wx.Panel(self)
+        self.pbot = wx.Panel(self)
+        pan = ScoresPanel(self.ptop, match, self)
+        nw = wx.Button(self.pbot, label="no result", pos=(50, 15))
+        rw = wx.Button(self.pbot, label="confirm", pos=(150, 15))
+        self.vsplit.Add(self.ptop, 1, wx.ALIGN_TOP | wx.EXPAND)
+        self.vsplit.Add(self.pbot, 1, wx.ALIGN_BOTTOM | wx.EXPAND)
+        self.SetSizer(self.vsplit)
 
-            def nowinner(e):
-                self.match.settbd()
+        def nowinner(e):
+            self.match.settbd()
+            self.parent.updatebracketimg()
+            self.Close()
+        
+        def setwinner(e):
+            if(self.match.doscore(pan.w1.GetValue(), pan.w2.GetValue())):
                 self.parent.updatebracketimg()
                 self.Close()
+            else:
+                pan.w1.SetValue(0)
+                pan.w2.SetValue(0)
 
-            self.Bind(wx.EVT_BUTTON, nowinner, nw)
-            self.SetSize((300, 150))
-            self.SetTitle("Report Scores")
-            self.Show()
-        else:
-            super(SpecMatchDialog, self).__init__(parent, match)
-
-    def winner1(self, e):
-        self.match.lowerleft = self.match.lowerleft - 1
-        if self.match.lowerleft == 0:
-            self.match.setwinner(self.match.part1, self.match.upperleft)
-            self.parent.updatebracketimg()
-            self.Close()
-        else:
-            self.addpanel()
-
-    def winner2(self, e):
-        self.match.upperleft = self.match.upperleft - 1
-        if self.match.upperleft == 0:
-            self.match.setwinner(self.match.part2, self.match.lowerleft)
-            self.parent.updatebracketimg()
-            self.Close()
-        else:
-            self.addpanel()
-
-    def addpanel(self):
-        if hasattr(self, "ypos"):
-            self.ypos += 70
-        else:
-            self.ypos = 70
-        pan0 = ScoresPanel(self.ptop, self.match, self, pos=(0, self.ypos))
-        self.SetSize((300, 150+self.ypos))
+        self.Bind(wx.EVT_BUTTON, nowinner, nw)
+        self.Bind(wx.EVT_BUTTON, setwinner, rw)
+        self.SetSize((300, 170))
+        self.SetTitle("Report Scores")
+        self.Show()
 
 
 class ScoresPanel(wx.Panel):
 
     def __init__(self, parent, match, dilog, pos=(0, 0)):
-        wx.Panel.__init__(self, parent, pos=pos, size=(300, 60))
+        wx.Panel.__init__(self, parent, pos=pos, size=(300, 75))
         lbltext = "Pick the Winner of the Match"
         lbl = wx.StaticText(self, label=lbltext, pos=(30, 0))
-        w1 = wx.Button(self, label=str(match.part1), pos=(30, 20))
-        w2 = wx.Button(self, label=str(match.part2), pos=(180, 20))
+        l1 = wx.StaticText(self, label=str(match.part1), pos=(23, 50))
+        l2 = wx.StaticText(self, label=str(match.part2), pos=(173, 50))
+        self.w1 = wx.SpinCtrl(self, min=-99, max=99, pos=(30, 20), size=(50, 40))
+        self.w2 = wx.SpinCtrl(self, min=-99, max=99, pos=(180, 20), size=(50,40))
 
-        self.Bind(wx.EVT_BUTTON, dilog.winner1, w1)
-        self.Bind(wx.EVT_BUTTON, dilog.winner2, w2)
+        #self.Bind(wx.EVT_BUTTON, dilog.winner1, w1)
+        #self.Bind(wx.EVT_BUTTON, dilog.winner2, w2)
 
 
 def piltowx(pil):
