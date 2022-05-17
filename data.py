@@ -195,8 +195,10 @@ def progbyes(br):
 
 
 def genm(players):
-    # Generates a winners bracket from a list
-    # of players, ordered by seed
+    '''
+    generates a winners bracket from a list
+    of players, ordered by seed
+    '''
 
     i = 1
     while(i < len(players)):
