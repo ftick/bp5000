@@ -10,10 +10,14 @@ meaning it supports triple elimination, quad elim etc as well as single & double
   - bracket saving/loading
   - player placing when bracket is complete
   - avoiding rematches in losers bracket when possible
+
+### 2.0
+ - support for match scores (ex 3-1)
+ - scrollwheel support
   
 ### What it doesn't do (yet)
- - support for match scores (ex 3-1)
  - easily reorder participants
+ - zoom in/out in bracket view
 
 ### What it will never do
  - manage setups / timeslots etc.
