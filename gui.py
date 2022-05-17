@@ -1,6 +1,7 @@
 import wx
 import sys
 import wx.lib.agw.flatnotebook as fnb
+from dark import darkMode
 import data
 import grf
 import bracketfuncs
@@ -18,6 +19,7 @@ class MFrame(wx.Frame):
 
     def __init__(self, *args, **kwargs):
         super(MFrame, self).__init__(*args, **kwargs)
+        self.darkToggled = True
         self.setup()
 
     def setup(self):
@@ -30,14 +32,21 @@ class MFrame(wx.Frame):
         filem.AppendSeparator()
         self.Bind(wx.EVT_MENU, self.new_event, new)
         qmi = wx.MenuItem(filem, wx.ID_EXIT, '&Quit\tCtrl+W')
-        # filem.AppendItem(qmi)
         filem.Append(qmi)
+
         about = helpm.Append(wx.ID_ANY, '&About BP5000')
         options = setm.Append(wx.ID_ANY, '&Options')
+
+        # setm.AppendSeparator()
+        # # dark_ = setm.Append(wx.ID_ANY, '&Toggle Dark Mode\tCtrl+D')
+        # dark_ = setm.Append(wx.ID_ANY, '&Toggle Dark Mode')
+        # self.Bind(wx.EVT_MENU, self.dark_event, dark_)
+
         self.Bind(wx.EVT_MENU, self.quit_event, qmi)
         self.Bind(wx.EVT_MENU, self.load_event, open_)
         self.Bind(wx.EVT_MENU, self.about_event, about)
         self.Bind(wx.EVT_MENU, self.options_event, options)
+
         self.options = Options()
         menubar.Append(filem, '&File')
         menubar.Append(setm, '&Settings')
@@ -142,6 +151,9 @@ class MFrame(wx.Frame):
             o.update(**{x[0]:x[1].GetValue()})
         self.options = o
         
+    def dark_event(self, e):
+        darkMode(self, self.darkToggled)
+        self.darkToggled = not self.darkToggled
 
 class ManagementPage(wx.Panel):
 
@@ -474,10 +486,10 @@ class BracketPage(wx.Panel):
             if ((self.x < 100 and self.ax > 0) or (self.y < 100 and self.ay > 0)) or ((self.x + w > 1900) or (self.y + h > 1900)):
                 self.updatebracketimg()
         sub = wx.Rect(self.x, self.y, w, h)
-        bimg = wx.BitmapFromImage(self.img.GetSubImage(sub))
+        bimg = wx.Bitmap(self.img.GetSubImage(sub))
         dc.DrawBitmap(bimg, bx, by)
         if self.extimg:
-            param0 = wx.BitmapFromImage(piltowx(self.extimg[0]))
+            param0 = wx.Bitmap(piltowx(self.extimg[0]))
             param1 = self.extimg[1]-self.x+self.bx
             param2 = self.extimg[2]-self.y+self.by
             dc.DrawBitmap(param0, param1, param2)
@@ -674,7 +686,7 @@ class ScoresPanel(wx.Panel):
 
 
 def piltowx(pil):
-    wxi = wx.EmptyImage(*pil.size)
+    wxi = wx.Image(*pil.size)
     wxi.SetData(pil.copy().convert('RGB').tobytes())
     return wxi
 

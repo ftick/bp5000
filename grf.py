@@ -376,7 +376,7 @@ def drawbracket(bracket):
                 fakey = ny + (120*ymult/2)
 
             img.paste(im, (x, y))
-            print("("+str(x)+", "+str(y)+")")
+            #print("("+str(x)+", "+str(y)+")")
             if ma.wlink is not None and not ma.wlink.isspecial():
                 d.rectangle((x+200, y+36, x+320, y+40), fill=lcolor)
             y += 120*ymult

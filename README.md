@@ -17,6 +17,7 @@ meaning it supports triple elimination, quad elim etc as well as single & double
   
 ### What it doesn't do (yet)
  - easily reorder participants
+ - dark mode
  - zoom in/out in bracket view
 
 ### What it will never do
