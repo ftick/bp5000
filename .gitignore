@@ -1,2 +1,4 @@
 __pycache__/*
 *.bp5
+venv
+requirements.txt

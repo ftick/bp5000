@@ -10,6 +10,8 @@ from options import Options
 # Tested with wx version 4 (phoenix) and python 3.6.1
 #
 VERSION_NUMBER = 2.0000
+VERTICAL = 0
+HORIZONTAL = 1
 
 
 class MFrame(wx.Frame):
@@ -28,7 +30,8 @@ class MFrame(wx.Frame):
         filem.AppendSeparator()
         self.Bind(wx.EVT_MENU, self.new_event, new)
         qmi = wx.MenuItem(filem, wx.ID_EXIT, '&Quit\tCtrl+W')
-        filem.AppendItem(qmi)
+        # filem.AppendItem(qmi)
+        filem.Append(qmi)
         about = helpm.Append(wx.ID_ANY, '&About BP5000')
         options = setm.Append(wx.ID_ANY, '&Options')
         self.Bind(wx.EVT_MENU, self.quit_event, qmi)
@@ -60,9 +63,9 @@ class MFrame(wx.Frame):
         self.Show(True)
 
     def about_event(self, e):
-        hlptxt = (" https://github.com/isaiahr/bp5000 \n"
+        hlptxt = (" https://github.com/ftick/bp5000 \n"
                   "Bracket Program 5000 developed by"
-                  " Isaiah (IR).\n\nVersion "+str(VERSION_NUMBER))
+                  " Isaiah (IR) & ftick.\n\nVersion "+str(VERSION_NUMBER))
         dia = wx.MessageDialog(self, hlptxt, "About BP5000")
         dia.ShowModal()
 
@@ -482,26 +485,41 @@ class BracketPage(wx.Panel):
     def mouse(self, ev):
         comp = False
         x, y = (ev.GetX(), ev.GetY())
-        if(ev.LeftIsDown()):
-            if self.oldx is None:
-                self.oldx = x
-                self.oldy = y
-                self.extimgc = self.extimg
-                return
-            self.x = self.x - (x - self.oldx)
-            self.y = self.y - (y - self.oldy)
-            self.oldx = x
-            self.oldy = y
-            if(self.x < 0):
-                self.x = 0
-            if(self.y < 0):
-                self.y = 0
+        delta = ev.GetWheelDelta()
+        rote = ev.GetWheelRotation()
+        if(delta > 0 and abs(rote) >= delta):
+            axis = ev.GetWheelAxis() # 0 = vertical, 1 = horizontal
+            rotes = rote / delta
+            if (axis == VERTICAL):
+                self.y -= rotes * 20
+                if(self.y < 0):
+                    self.y = 0
+            if (axis == HORIZONTAL):
+                self.x += rotes * 20
+                if(self.x < 0):
+                    self.x = 0
             self.Refresh()
         else:
-            if not (self.oldx is None):
-                comp = True
-            self.oldx = None
-            self.oldy = None
+            if(ev.LeftIsDown() or ev.MiddleIsDown()):
+                if self.oldx is None:
+                    self.oldx = x
+                    self.oldy = y
+                    self.extimgc = self.extimg
+                    return
+                self.x = self.x - (x - self.oldx)
+                self.y = self.y - (y - self.oldy)
+                self.oldx = x
+                self.oldy = y
+                if(self.x < 0):
+                    self.x = 0
+                if(self.y < 0):
+                    self.y = 0
+                self.Refresh()
+            else:
+                if not (self.oldx is None):
+                    comp = True
+                self.oldx = None
+                self.oldy = None
         old = self.extimg
         mevx, mevy = (self.x+x-self.bx, self.y+y-self.by)
         if self.GetParent().GetParent().GetParent().options.get("exprender"):
@@ -644,12 +662,12 @@ class ScoresPanel(wx.Panel):
 
     def __init__(self, parent, match, dilog, pos=(0, 0)):
         wx.Panel.__init__(self, parent, pos=pos, size=(300, 75))
-        lbltext = "Pick the Winner of the Match"
+        lbltext = "Report Scores"
         lbl = wx.StaticText(self, label=lbltext, pos=(30, 0))
-        l1 = wx.StaticText(self, label=str(match.part1), pos=(23, 50))
-        l2 = wx.StaticText(self, label=str(match.part2), pos=(173, 50))
-        self.w1 = wx.SpinCtrl(self, min=-99, max=99, pos=(30, 20), size=(50, 40))
-        self.w2 = wx.SpinCtrl(self, min=-99, max=99, pos=(180, 20), size=(50,40))
+        l1 = wx.StaticText(self, label=str(match.part1), pos=(23, 60))
+        l2 = wx.StaticText(self, label=str(match.part2), pos=(173,60))
+        self.w1 = wx.SpinCtrl(self, min=-99, max=99, pos=(30, 20), size=(50, 30))
+        self.w2 = wx.SpinCtrl(self, min=-99, max=99, pos=(180, 20), size=(50,30))
 
         #self.Bind(wx.EVT_BUTTON, dilog.winner1, w1)
         #self.Bind(wx.EVT_BUTTON, dilog.winner2, w2)
