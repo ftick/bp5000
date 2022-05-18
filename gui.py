@@ -768,10 +768,8 @@ class ScoresPanel(wx.Panel):
         wx.Panel.__init__(self, parent, pos=pos, size=(300, 75))
         lbltext = "Report Scores"
         lbl = wx.StaticText(self, label=lbltext, pos=(30, 0))
-        # l1 = wx.StaticText(self, label=str(match.part1), pos=(23, 60))
-        # l2 = wx.StaticText(self, label=str(match.part2), pos=(173,60))
-        l1 = wx.StaticText(self, label="0", pos=(23, 60))
-        l2 = wx.StaticText(self, label="0", pos=(173,60))
+        l1 = wx.StaticText(self, label=str(match.part1), pos=(23, 60))
+        l2 = wx.StaticText(self, label=str(match.part2), pos=(173,60))
         self.w1 = wx.SpinCtrl(self, min=-99, max=99, pos=(30, 20), size=(50, 30))
         self.w2 = wx.SpinCtrl(self, min=-99, max=99, pos=(180, 20), size=(50,30))
 
