@@ -12,6 +12,7 @@ meaning it supports triple elimination, quad elim etc as well as single & double
   - avoiding rematches in losers bracket when possible
 
 ### 2.0
+ - import players from existing Challonge/StartGG brackets (with seeding intact)
  - support for match scores (ex 3-1)
  - scrollwheel support
   

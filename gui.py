@@ -2,6 +2,7 @@ import wx
 import sys
 import wx.lib.agw.flatnotebook as fnb
 from dark import darkMode
+import importplayers
 import data
 import grf
 import bracketfuncs
@@ -171,6 +172,7 @@ class ManagementPage(wx.Panel):
         vsplit = wx.BoxSizer(wx.VERTICAL)
         vsplit.Add(t, 0, 0, 0)
         vsplit.Add(self.elist, 1, wx.ALIGN_BOTTOM | wx.EXPAND | wx.ALL)
+
         updatebtn = wx.Button(self.opanel, label='Update')
         t2 = 'Projected Bracket'
         projbtn = wx.Button(self.opanel, label=t2)
@@ -178,7 +180,12 @@ class ManagementPage(wx.Panel):
         genbtn = wx.Button(self.opanel, label=t0)
         t3 = 'View player placings'
         placebtn = wx.Button(self.opanel, label=t3)
+        t4 = 'Import players from Challonge'
+        challongebtn = wx.Button(self.opanel, label=t4)
+        t5 = 'Import players from StartGG'
+        startggbtn = wx.Button(self.opanel, label=t5)
         savebtn = wx.Button(self.opanel, id=wx.ID_SAVE,  label="Save")
+
         self.hsplit.Add(vsplit, 1, wx.ALIGN_LEFT | wx.EXPAND)
         self.hsplit.Add(self.opanel, 1, wx.ALIGN_RIGHT | wx.EXPAND)
         btnsz = wx.StaticBoxSizer(wx.StaticBox(self.opanel,
@@ -187,6 +194,8 @@ class ManagementPage(wx.Panel):
         btnsz.Add(projbtn, 0, wx.EXPAND)
         btnsz.Add(placebtn, 0, wx.EXPAND)
         btnsz.Add(genbtn, 0, wx.EXPAND)
+        btnsz.Add(challongebtn, 0, wx.EXPAND)
+        btnsz.Add(startggbtn, 0, wx.EXPAND)
         btnsz2 = wx.StaticBoxSizer(wx.StaticBox(self.opanel,
                                                 label="Tournament Management"),
                                    wx.VERTICAL)
@@ -219,58 +228,79 @@ class ManagementPage(wx.Panel):
         def blankhtxt(e):
             self.helplbl.SetLabel("")
             e.Skip()
-        self.Bind(wx.EVT_BUTTON, self.update, updatebtn)
 
+        def projhtxt(e):
+            prjt0 = "View the projected bracket, a bracket where the "
+            prjt1 = "expected winners are shown by seed."
+            self.helplbl.SetLabel(prjt0+prjt1)
+            self.helplbl.Wrap(self.helpsz.GetSize()[0])
+            e.Skip()
+
+        self.Bind(wx.EVT_BUTTON, self.proj, projbtn)
+        projbtn.Bind(wx.EVT_ENTER_WINDOW, projhtxt)
+        projbtn.Bind(wx.EVT_LEAVE_WINDOW, blankhtxt)
+
+        def genhtxt(e):
+            ght = "Generate a list of entrants from a template."
+            self.helplbl.SetLabel(ght)
+            self.helplbl.Wrap(self.helpsz.GetSize()[0])
+            e.Skip()
+
+        self.Bind(wx.EVT_BUTTON, self.gen, genbtn)
+        genbtn.Bind(wx.EVT_ENTER_WINDOW, genhtxt)
+        genbtn.Bind(wx.EVT_LEAVE_WINDOW, blankhtxt)
+
+        def placehtxt(e):
+            plct = "View each entrants placing in the tournament."
+            self.helplbl.SetLabel(plct)
+            self.helplbl.Wrap(self.helpsz.GetSize()[0])
+            e.Skip()
+
+        self.Bind(wx.EVT_BUTTON, self.place, placebtn)
+        placebtn.Bind(wx.EVT_ENTER_WINDOW, placehtxt)
+        placebtn.Bind(wx.EVT_LEAVE_WINDOW, blankhtxt)
+
+        def challongehtxt(e):
+            cht = "Import players from a Challonge bracket."
+            self.helplbl.SetLabel(cht)
+            self.helplbl.Wrap(self.helpsz.GetSize()[0])
+            e.Skip()
+
+        self.Bind(wx.EVT_BUTTON, self.challonge, challongebtn)
+        challongebtn.Bind(wx.EVT_ENTER_WINDOW, challongehtxt)
+        challongebtn.Bind(wx.EVT_LEAVE_WINDOW, blankhtxt)
+
+        def startgghtxt(e):
+            sggt = "Import players from a Challonge bracket."
+            self.helplbl.SetLabel(sggt)
+            self.helplbl.Wrap(self.helpsz.GetSize()[0])
+            e.Skip()
+
+        self.Bind(wx.EVT_BUTTON, self.startgg, startggbtn)
+        startggbtn.Bind(wx.EVT_ENTER_WINDOW, startgghtxt)
+        startggbtn.Bind(wx.EVT_LEAVE_WINDOW, blankhtxt)
+        
         def updatehtxt(e):
             ut = "Update or start the tournament with the provided entrants."
             self.helplbl.SetLabel(ut)
             self.helplbl.Wrap(self.helpsz.GetSize()[0])
             e.Skip()
-
+        
+        self.Bind(wx.EVT_BUTTON, self.update, updatebtn)
         updatebtn.Bind(wx.EVT_ENTER_WINDOW, updatehtxt)
         updatebtn.Bind(wx.EVT_LEAVE_WINDOW, blankhtxt)
-        self.Bind(wx.EVT_BUTTON, self.proj, projbtn)
-
-        def projhtxt(e):
-            pt0 = "View the projected bracket, a bracket where the "
-            pt1 = "expected winners are shown by seed."
-            self.helplbl.SetLabel(pt0+pt1)
-            self.helplbl.Wrap(self.helpsz.GetSize()[0])
-            e.Skip()
-
-        projbtn.Bind(wx.EVT_ENTER_WINDOW, projhtxt)
-        projbtn.Bind(wx.EVT_LEAVE_WINDOW, blankhtxt)
-        self.Bind(wx.EVT_BUTTON, self.gen, genbtn)
-
-        def genhtxt(e):
-            HELPFULTEXT5000 = "Generate a list of entrants from a template."
-            self.helplbl.SetLabel(HELPFULTEXT5000)
-            self.helplbl.Wrap(self.helpsz.GetSize()[0])
-            e.Skip()
-
-        genbtn.Bind(wx.EVT_ENTER_WINDOW, genhtxt)
-        genbtn.Bind(wx.EVT_LEAVE_WINDOW, blankhtxt)
-        self.Bind(wx.EVT_BUTTON, self.place, placebtn)
-
-        def placehtxt(e):
-            p196 = "View each entrants placing in the tournament."
-            self.helplbl.SetLabel(p196)
-            self.helplbl.Wrap(self.helpsz.GetSize()[0])
-            e.Skip()
-
-        placebtn.Bind(wx.EVT_ENTER_WINDOW, placehtxt)
-        placebtn.Bind(wx.EVT_LEAVE_WINDOW, blankhtxt)
-        self.Bind(wx.EVT_BUTTON, self.save, savebtn)
 
         def savehtxt(e):
-            t234 = "Save the tournament to a file,"
-            t2345 = " so it can be loaded at a later time."
-            self.helplbl.SetLabel(t234+t2345)
+            st1 = "Save the tournament to a file,"
+            st2 = " so it can be loaded at a later time."
+            self.helplbl.SetLabel(st1+st2)
             self.helplbl.Wrap(self.helpsz.GetSize()[0])
             e.Skip()
 
+        self.Bind(wx.EVT_BUTTON, self.save, savebtn)
         savebtn.Bind(wx.EVT_ENTER_WINDOW, savehtxt)
         savebtn.Bind(wx.EVT_LEAVE_WINDOW, blankhtxt)
+
         if brackets:
             self.brackets = brackets
             i = -1
@@ -432,6 +462,68 @@ class ManagementPage(wx.Panel):
         d.SetSize((250, h))
         d.SetTitle("Create new")
         d.Show(True)
+    
+    def challonge(self, e):
+        h = 220
+        d = wx.Dialog(None)
+        # orgl = wx.StaticText(d, pos=(20, 7), label="Organization ID")
+        # org = wx.TextCtrl(d, pos=(20, 24), size=(190, 20), )
+        # urll = wx.StaticText(d, pos=(20, 57), label="Tournament URL")
+        # url = wx.TextCtrl(d, pos=(20, 74), size=(190, 20))
+        urll = wx.StaticText(d, pos=(20, 57), label="Tournament URL")
+        url = wx.TextCtrl(d, pos=(20, 74), size=(190, 20))
+        okbtn = wx.Button(d, label='OK', pos=(30, h-70))
+
+        def newev(e):
+            d.Close()
+            bstr = ""
+            challongeURL = url.GetValue()
+            entrants = importplayers.entrants_challongeurl(challongeURL)
+            for entrant in entrants:
+                bstr += entrant + "\n"
+            self.elist.SetValue(bstr)
+
+        d.Bind(wx.EVT_BUTTON, newev, okbtn)
+        cancelbtn = wx.Button(d, label='Cancel', pos=(150, h-70))
+
+        def c(e):
+            d.Close()
+
+        d.Bind(wx.EVT_BUTTON, c, cancelbtn)
+        d.SetSize((250, h))
+        d.SetTitle("Challonge Import")
+        d.Show(True)
+    
+    def startgg(self, e):
+        h = 220
+        d = wx.Dialog(None)
+        # evtl = wx.StaticText(d, pos=(20, 7), label="Event ID")
+        # evt = wx.TextCtrl(d, pos=(20, 24), size=(190, 20), )
+        # urll = wx.StaticText(d, pos=(20, 57), label="Tournament ID")
+        # url = wx.TextCtrl(d, pos=(20, 74), size=(190, 20))
+        urll = wx.StaticText(d, pos=(20, 57), label="Tournament URL")
+        url = wx.TextCtrl(d, pos=(20, 74), size=(190, 20))
+        okbtn = wx.Button(d, label='OK', pos=(30, h-70))
+
+        def newev(e):
+            d.Close()
+            bstr = ""
+            startggURL = url.GetValue()
+            entrants = importplayers.entrants_startggurl(startggURL)
+            for entrant in entrants:
+                bstr += entrant + "\n"
+            self.elist.SetValue(bstr)
+
+        d.Bind(wx.EVT_BUTTON, newev, okbtn)
+        cancelbtn = wx.Button(d, label='Cancel', pos=(150, h-70))
+
+        def c(e):
+            d.Close()
+
+        d.Bind(wx.EVT_BUTTON, c, cancelbtn)
+        d.SetSize((250, h))
+        d.SetTitle("StartGG Import")
+        d.Show(True)
 
 
 class BracketPage(wx.Panel):
@@ -503,11 +595,11 @@ class BracketPage(wx.Panel):
             axis = ev.GetWheelAxis() # 0 = vertical, 1 = horizontal
             rotes = rote / delta
             if (axis == VERTICAL):
-                self.y -= rotes * 20
+                self.y -= rotes * 50
                 if(self.y < 0):
                     self.y = 0
             if (axis == HORIZONTAL):
-                self.x += rotes * 20
+                self.x += rotes * 50
                 if(self.x < 0):
                     self.x = 0
             self.Refresh()
@@ -676,8 +768,10 @@ class ScoresPanel(wx.Panel):
         wx.Panel.__init__(self, parent, pos=pos, size=(300, 75))
         lbltext = "Report Scores"
         lbl = wx.StaticText(self, label=lbltext, pos=(30, 0))
-        l1 = wx.StaticText(self, label=str(match.part1), pos=(23, 60))
-        l2 = wx.StaticText(self, label=str(match.part2), pos=(173,60))
+        # l1 = wx.StaticText(self, label=str(match.part1), pos=(23, 60))
+        # l2 = wx.StaticText(self, label=str(match.part2), pos=(173,60))
+        l1 = wx.StaticText(self, label="0", pos=(23, 60))
+        l2 = wx.StaticText(self, label="0", pos=(173,60))
         self.w1 = wx.SpinCtrl(self, min=-99, max=99, pos=(30, 20), size=(50, 30))
         self.w2 = wx.SpinCtrl(self, min=-99, max=99, pos=(180, 20), size=(50,30))
 
