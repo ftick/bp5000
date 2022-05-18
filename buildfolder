@@ -1,0 +1,1 @@
+pyinstaller gui.py --clean --name BP5000
