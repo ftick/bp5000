@@ -28,6 +28,9 @@ def read_bracket(fil):
 
 
 def int_w(nt):
+    # TODO: Implement negative numbers
+    if nt < 0:
+        return struct.pack(">I", 0)
     return struct.pack(">I", nt)
 
 
