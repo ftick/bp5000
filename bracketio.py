@@ -28,14 +28,22 @@ def read_bracket(fil):
 
 
 def int_w(nt):
-    # TODO: Implement negative numbers
     if nt < 0:
-        return struct.pack(">I", 0)
+        return struct.pack(">I", 100-nt)
     return struct.pack(">I", nt)
 
 
-def int_r(bn):
+def int__r(bn):
+    # TODO: Rename int__r function
     return struct.unpack(">I", bn)[0]
+
+
+def int_r(bn):
+    # TODO: Rename int_r function
+    num = int__r(bn)
+    if num > 99:
+        num = 100 - num
+    return num
 
 
 def bool_w(bol):
@@ -51,7 +59,7 @@ def str_w(stri):
 
 
 def str_r(bts):
-    num = int_r(bts[0:4])
+    num = int__r(bts[0:4])
     return ((4+num), bts[4:4+num].decode("utf-8"))
 
 
@@ -82,14 +90,14 @@ def parts_w(brs):
 
 
 def parts_r(bts):
-    num = int_r(bts[:4])
+    num = int__r(bts[:4])
     plist = {}
     bts = bts[4:]
     for r in range(0, num):
         (cut, tag) = str_r(bts)
         bts = bts[cut:]
-        seed = int_r(bts[:4])
-        uid = int_r(bts[4:8])
+        seed = int__r(bts[:4])
+        uid = int__r(bts[4:8])
         bts = bts[8:]
         p = data.Participant(tag=tag, seed=seed)
         p.uniqueid = uid
@@ -132,7 +140,7 @@ def brackets_r(bts, pdict):
     mlist = {}
     bracks = []
     for r in range(0, elims):
-        mcount = int_r(bts[:4])
+        mcount = int__r(bts[:4])
         bts = bts[4:]
         bracks.append([])
         for i in range(0, mcount):
@@ -169,7 +177,7 @@ def brackets_r(bts, pdict):
 
 
 def entire_r(bts):
-    vcode = int_r(bts[:4])
+    vcode = int__r(bts[:4])
     if vcode != VERSION_CODE:
         return "Invalid file"
     bts = bts[4:]
@@ -251,15 +259,15 @@ def match_r(bts):
             #import pdb; pdb.set_trace()
             m.scores.append((int_r(bts[41 + (i*8):45+(i*8)]),int_r(bts[45+(i*8):49+(i*8)])))
             tbtsr = 50+(i*8)
-    m.uniqueid = int_r(bts[:4])
+    m.uniqueid = int__r(bts[:4])
     m._HASWL = bool_r(bts[4])
-    m._WL = int_r(bts[5:9])
+    m._WL = int__r(bts[5:9])
     m._HASLL = bool_r(bts[9])
-    m._LL = int_r(bts[10:14])
+    m._LL = int__r(bts[10:14])
     m._HASP1 = bool_r(bts[14])
-    m._P1 = int_r(bts[15:19])
+    m._P1 = int__r(bts[15:19])
     m._HASP2 = bool_r(bts[19])
-    m._P2 = int_r(bts[20:24])
+    m._P2 = int__r(bts[20:24])
     m.winner = int_r(bts[24:28])
     return (m, tbtsr)
 

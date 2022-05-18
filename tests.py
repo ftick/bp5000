@@ -35,17 +35,19 @@ class test_brackets(TestCase):
 
 
 class test_iobrackets(TestCase):
+    maxDiff = None 
 
     def test1writeread(self):
+        self.maxDiff = None 
         i = 128
-        plist = (['player %s ' % x for x in range(0, i)])
+        plist = (['player %s ' % (x+1) for x in range(0, i)])
         b = data.genm(plist)
         l = data.genl(b)
         l2 = data.genl(l)
         l3 = data.genl(l2)
         l4 = data.genl(l3)
-        bracketio.write_bracket("TEST_FILE.bp5", [b, l, l2, l3, l4])
-        r = bracketio.read_bracket("TEST_FILE.bp5")
+        bracketio.write_bracket("test/TEST_FILE.bp5", [b, l, l2, l3, l4])
+        r = bracketio.read_bracket("test/TEST_FILE.bp5")
         self.assertEqual(repr([b, l, l2, l3, l4]), repr(r))
 
 
