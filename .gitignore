@@ -1,11 +1,14 @@
-__pycache__/*
-*.bp5
-
 # Environment
+.vscode
 venv
 .env
+setup
 
 # Build
 build
 dist
 *.spec
+__pycache__/*
+
+# Misc
+*.bp5

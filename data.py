@@ -101,7 +101,7 @@ class Match:
         if(self.llink):
             self.llink.addpart(loser)
         else:
-            # TODO: assign loser a placing.
+            # TODO Assign loser a placing
             pass
     def setscore(self, p1s, p2s):
         if p1s > p2s:
