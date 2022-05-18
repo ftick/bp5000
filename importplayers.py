@@ -31,8 +31,8 @@ def url_challonge(url):
     if domainStart == -1:
         return ["",""]
     if domainStart == 0:
-        return ["", trimmed[ domainStart + len('challonge.com/') : ]]
-    return [trimmed[ : domainStart-1 ], trimmed[ domainStart + len('challonge.com/') : ]]
+        return ["", trimmed.split('/')[1]]
+    return [trimmed[ : domainStart-1 ], trimmed.split('/')[1]]
 
 def url_startgg(url):
     '''
@@ -73,6 +73,7 @@ def DictToList(dct):
     return lst2
 
 def partName(part):
+    if(part['name'] == ''): return part['display_name']
     return part['name']
 
 def partName2(part):
