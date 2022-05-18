@@ -25,6 +25,8 @@ meaning it supports triple elimination, quad elim etc as well as single & double
  - manage setups / timeslots etc.
  - support other formats like round robin
 
+---
+
 ### Dependencies
 Python==3.6.1
 
@@ -33,14 +35,12 @@ pysmashgg
 pychallonge
 python-dotenv
 wxPython==4.0.0a2
-Pillow==4.1.0
+Pillow>=8.4.0
 
-NOTE: Pillow >= 4.2 is broken because of https://github.com/python-pillow/Pillow/issues/2614. if you encounter this problem, downgrading pillow to an older version will work. Supposedly this has been fixed in future versions (I am not sure which version it is fixed in however)
-
-Other versions may work but are untested.
+---
 
 ### Screenshots
-The gui
+The User Interface
 ![Gui](docs/examples/gui.png?raw=true "GUI")
 
 

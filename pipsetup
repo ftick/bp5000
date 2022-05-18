@@ -1,2 +1,2 @@
 python -m pip install --upgrade pip
-pip install pyinstaller pysmashgg pychallonge python-dotenv wxPython==4.0.0a2 Pillow==4.1.0
+pip install pyinstaller pysmashgg pychallonge python-dotenv wxPython==4.0.0a2 Pillow>=8.4.0
