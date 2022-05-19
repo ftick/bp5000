@@ -30,12 +30,12 @@ meaning it supports triple elimination, quad elim etc as well as single & double
 ### Dependencies
 Python==3.6.1
 
-pyinstaller (for building executable files)
-pysmashgg
-pychallonge
-python-dotenv
-wxPython==4.0.0a2
-Pillow>=8.4.0
+pyinstaller (for building executable files)     
+pysmashgg     
+pychallonge     
+python-dotenv     
+wxPython==4.0.0a2     
+Pillow>=8.4.0     
 
 ---
 
@@ -44,7 +44,7 @@ The User Interface
 ![Gui](docs/examples/gui.png?raw=true "GUI")
 
 
-full screenshots of a triple elimination bracket
+## Full screenshots of a triple elimination bracket
 
 Winners Bracket
 ![Winners bracket](docs/examples/winners.png?raw=true "Winners Bracket")
@@ -52,5 +52,5 @@ Losers Bracket
 ![Losers bracket](docs/examples/losers.png?raw=true "Losers Bracket")
 Losers 2x Bracket (when a player loses in losers bracket)
 ![Losers 2x bracket](docs/examples/losers2x.png?raw=true "Losers 2x Bracket")
-Finals Bracket (when there is 3 players left, similar to Grand Finals)
+Finals Bracket (when there are 3 players left, similar to Grand Finals)
 ![Finals bracket](docs/examples/finals.png?raw=true "Finals Bracket")
