@@ -4,6 +4,11 @@
 
 from collections import OrderedDict
 
+def containsBye(match):
+    p1bye = match.part1 and match.part1.isbye()
+    p2bye = match.part2 and match.part2.isbye()
+    return p1bye or p2bye
+
 
 def projected(brackets):
     '''
@@ -26,6 +31,57 @@ def projected(brackets):
                     nbr.append(match.wlink)
             br = nbr
 
+
+def loserGets(brackets, match):
+    placing = len(brackets[0])*2 + 1
+    shadowRealm = brackets[-1].copy()
+    while match.llink is not None:
+        match = match.llink
+    if containsBye(match):
+        match = match.wlink
+    # print("SB:", match)
+
+    matchlst = []
+    round_index = 0
+    while match not in matchlst:
+        placing -= len(matchlst)
+        round_index += 1
+        matchlst = getmatchinrd(shadowRealm, round_index)
+        # print(placing, matchlst)
+    placing -= len(matchlst)
+    round_index += 1
+    matchlst = getmatchinrd(shadowRealm, round_index)
+    # print(placing, matchlst)
+    
+    return placing
+
+
+def minPlacing(brackets, participants):
+    '''
+    given a bracket and list of participants, returns a dict mapping Participant -> minimum placing
+    '''
+    place = OrderedDict()
+    lst = []
+    for participant in participants:
+        sets = []
+
+        for br_index in range(len(brackets)):
+            for match in brackets[br_index]:
+                if (match.part1 and match.part1.tag == participant) or (match.part2 and match.part2.tag == participant):
+                    # print(f"{participant}: {match}")
+                    if match not in sets:
+                        sets.append(match)
+        matchToAnalyze = sets[-1]
+        while matchToAnalyze.winner == 1 and matchToAnalyze.part1 and matchToAnalyze.part1.tag == participant:
+            matchToAnalyze = matchToAnalyze.wlink
+        while matchToAnalyze.winner == 2 and matchToAnalyze.part2 and matchToAnalyze.part2.tag == participant:
+            matchToAnalyze = matchToAnalyze.wlink
+        
+        # print(matchToAnalyze)
+        lst.append([loserGets(brackets, matchToAnalyze), participant])
+    lst.sort()
+    return lst
+        
 
 def placing(brackets):
     '''

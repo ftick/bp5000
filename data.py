@@ -106,7 +106,7 @@ class Match:
     def setscore(self, p1s, p2s):
         if p1s > p2s:
             self.setwinner(self.part1)
-        else:
+        elif p2s > p1s:
             self.setwinner(self.part2)
         self.p1score = p1s
         self.p2score = p2s

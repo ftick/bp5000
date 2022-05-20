@@ -54,7 +54,8 @@ class MFrame(wx.Frame):
         menubar.Append(helpm, '&Help')
         self.SetMenuBar(menubar)
         p = wx.Panel(self)
-        self.nb = fnb.FlatNotebook(p, agwStyle=fnb.FNB_X_ON_TAB)
+        tabStyle = fnb.FNB_X_ON_TAB+fnb.FNB_MOUSE_MIDDLE_CLOSES_TABS+fnb.FNB_SMART_TABS+fnb.FNB_FANCY_TABS+fnb.FNB_DROPDOWN_TABS_LIST+fnb.FNB_NAV_BUTTONS_WHEN_NEEDED
+        self.nb = fnb.FlatNotebook(p, agwStyle=tabStyle )
 
         def pagechanged(event):
             col = wx.Colour(hash(self.nb.GetPage(event.GetSelection()).sname))
@@ -91,7 +92,7 @@ class MFrame(wx.Frame):
             w.Destroy()
             return
         name = dia.GetFilename().replace(".bp5", "")
-        pg = ManagementPage(self.nb, name, len(brs), brs)
+        pg = ManagementPage(self.nb, name, len(brs), brs, self, filepath=dia.GetPath())
         self.nb.InsertPage(0, pg, name)
 
     def new_event(self, e):
@@ -107,7 +108,8 @@ class MFrame(wx.Frame):
 
         def newev(e):
             d.Close()
-            page = ManagementPage(self.nb, name.GetValue(), sc.GetValue())
+            page = ManagementPage(self.nb, name.GetValue(), sc.GetValue(), grandparent=self)
+            # self.Bind(wx.EVT_MENU, self.save, self.MenuBar.saveas_)
             self.nb.AddPage(page, name.GetValue())
 
         d.Bind(wx.EVT_BUTTON, newev, okbtn)
@@ -156,14 +158,39 @@ class MFrame(wx.Frame):
         darkMode(self, self.darkToggled)
         self.darkToggled = not self.darkToggled
 
+
+def getMenuTitle(m):
+    return m[1]
+
+
 class ManagementPage(wx.Panel):
 
-    def __init__(self, parent, name="tournament", elim="2", brackets=None):
+    def __init__(self, parent, name="tournament", elim="2", brackets=None, grandparent=None, filepath=""):
+        
         self.elim = elim
         self.name = name
         self.parent = parent
         self.sname = name
+        self.filepath = filepath
         wx.Panel.__init__(self, parent)
+
+        # menu = grandparent.GetMenuBar()
+        # menus = menu.GetMenus()
+        # titles = list(map(getMenuTitle, menus))
+        # if 'Tourney' in titles:
+        #     tmenu = menus[titles.index('Tourney')][0]
+        #     # for item in tmenu.GetMenuItems():
+        #     #     print(item.GetItemLabelText(), item.GetId())
+        #     tmenu.Enable(5003, self.filepath != "")
+        # else:
+        #     self.trnym = wx.Menu()
+        #     save_ = self.trnym.Append(wx.ID_SAVE, '&Save Tournament\tCtrl+S')
+        #     self.trnym.Enable(save_.GetId(), self.filepath != "")
+        #     saveas_ = self.trnym.Append(wx.ID_SAVEAS, '&Save Tournament As\tCtrl+Shift+S')
+        #     grandparent.Bind(wx.EVT_MENU, self.save_nodia, save_)
+        #     grandparent.Bind(wx.EVT_MENU, self.save, saveas_)
+        #     menu.Append(self.trnym, '&Tourney')
+
         self.hsplit = wx.BoxSizer(wx.HORIZONTAL)
         self.opanel = wx.Panel(self)
         t1 = "Entrants List (Ordered by seed), 1 per line"
@@ -184,7 +211,7 @@ class ManagementPage(wx.Panel):
         challongebtn = wx.Button(self.opanel, label=t4)
         t5 = 'Import players from StartGG'
         startggbtn = wx.Button(self.opanel, label=t5)
-        savebtn = wx.Button(self.opanel, id=wx.ID_SAVE,  label="Save")
+        savebtn = wx.Button(self.opanel, id=wx.ID_SAVEAS,  label="Save")
 
         self.hsplit.Add(vsplit, 1, wx.ALIGN_LEFT | wx.EXPAND)
         self.hsplit.Add(self.opanel, 1, wx.ALIGN_RIGHT | wx.EXPAND)
@@ -334,6 +361,18 @@ class ManagementPage(wx.Panel):
             fb.sname = self.name
             self.parent.AddPage(fb, self.name + ": Finals")
 
+    def save_nodia(self, e):
+        if (self.filepath == ""):
+            self.save(e)
+        else:
+            savetext = f"Saved {self.name}"
+            w = wx.MessageDialog(self.parent, savetext,
+                                #  "Success", wx.ICON_INFORMATION)
+                                 "Save Success", wx.ICON_NONE)
+            bracketio.write_bracket(self.filepath, self.brackets)   
+            w.ShowModal()
+            w.Destroy()
+
     def save(self, e):
         if not hasattr(self, "brackets"):
             errortext = "Make bracket before doing that"
@@ -347,7 +386,7 @@ class ManagementPage(wx.Panel):
                             wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         if dia.ShowModal() == wx.ID_CANCEL:
             return
-
+        self.filepath = dia.GetPath()
         bracketio.write_bracket(dia.GetPath(), self.brackets)
 
     def place(self, e):
@@ -358,15 +397,15 @@ class ManagementPage(wx.Panel):
             w.ShowModal()
             w.Destroy()
             return
-        placel = bracketfuncs.placing(self.brackets)
+        players = self.elist.GetValue().split("\n")
+        placel = bracketfuncs.minPlacing(self.brackets, players)
         d = wx.Dialog(None)
         d.SetTitle("Results")
         a = wx.TextCtrl(d, style=wx.TE_MULTILINE)
         a.SetEditable(False)
         ptxt = ""
         for p in placel:
-            if not p.isbye():
-                ptxt += str(placel[p]) + ". " + p.tag + "\n"
+            ptxt += str(p[0]) + ". " + p[1] + "\n"
         a.SetValue(ptxt)
         d.SetSize((250, 320))
         d.Show(True)
@@ -634,7 +673,7 @@ class BracketPage(wx.Panel):
             self.Refresh()
         if comp and (self.extimg is not None) and self.extimg == self.extimgc:
             m = grf.mouse_ev(mevx, mevy, self.bracket, True)
-            if m.part1 and m.part2:
+            if m.part1 and m.part2 and not m.part1.isbye() and not m.part2.isbye():
                 if m.isspecial():
                     SpecMatchDialog(self, m)
                 else:
@@ -701,15 +740,22 @@ class MatchDialog(wx.Dialog):
         self.SetSizer(self.vsplit)
 
         def nowinner(e):
+            if pan.w1.GetValue() != 0 or pan.w2.GetValue() != 0:
+                self.match.setscore(0, 0)
             self.match.settbd()
             self.parent.updatebracketimg()
             self.Close()
         
         def setwinner(e):
-            self.match.setscore(pan.w1.GetValue(), pan.w2.GetValue())
-            self.parent.updatebracketimg()
-            self.Close()
+            if (pan.w1.GetValue() == 0 and pan.w2.GetValue() == 0):
+                nowinner(e)
+            else:
+                self.match.setscore(pan.w1.GetValue(), pan.w2.GetValue())
+                self.parent.updatebracketimg()
+                self.Close()
 
+        self.Bind(wx.EVT_TEXT_ENTER, setwinner, pan.w1)
+        self.Bind(wx.EVT_TEXT_ENTER, setwinner, pan.w2)
         self.Bind(wx.EVT_BUTTON, nowinner, nw)
         self.Bind(wx.EVT_BUTTON, setwinner, rw)
         self.SetSize((300, 170))
@@ -743,6 +789,8 @@ class SpecMatchDialog(MatchDialog):
         self.SetSizer(self.vsplit)
 
         def nowinner(e):
+            if pan.w1.GetValue() != 0 or pan.w2.GetValue() != 0:
+                self.match.setscore(0, 0)
             self.match.settbd()
             self.parent.updatebracketimg()
             self.Close()
@@ -770,8 +818,11 @@ class ScoresPanel(wx.Panel):
         lbl = wx.StaticText(self, label=lbltext, pos=(30, 0))
         l1 = wx.StaticText(self, label=str(match.part1), pos=(23, 60))
         l2 = wx.StaticText(self, label=str(match.part2), pos=(173,60))
-        self.w1 = wx.SpinCtrl(self, min=-99, max=99, pos=(30, 20), size=(50, 30))
-        self.w2 = wx.SpinCtrl(self, min=-99, max=99, pos=(180, 20), size=(50,30))
+        self.w1 = wx.SpinCtrl(self, value=str(match.p1score), min=-99, max=99, pos=(30, 20), size=(50, 30))
+        self.w1.SetFocus()
+        self.w1.SetSelection(0, len(str(self.w1.GetValue())))
+        self.w2 = wx.SpinCtrl(self, value=str(match.p2score), min=-99, max=99, pos=(180, 20), size=(50,30))
+        self.w2.SetSelection(0, len(str(self.w2.GetValue())))
 
         #self.Bind(wx.EVT_BUTTON, dilog.winner1, w1)
         #self.Bind(wx.EVT_BUTTON, dilog.winner2, w2)

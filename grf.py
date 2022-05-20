@@ -2,7 +2,6 @@
 #
 #
 from PIL import Image, ImageDraw, ImageFont
-import math
 import bracketfuncs
 
 # Colour of the lines
@@ -62,6 +61,8 @@ def getchek():
 
 
 def drawmatch(match, highlight=False):
+    if bracketfuncs.containsBye(match):
+        return Image.new('RGBA', (200, 80), color=((0, 0, 0)))
     if match.isspecial():
         return drawspmatch(match, highlight)
     str1 = match.part1.tag if match.part1 else "TBD"
@@ -77,7 +78,7 @@ def drawmatch(match, highlight=False):
     d.rectangle((0, 0, 45, 80), fill=(0, 0, 200))
     d.text((5, 2), str(int1))
     d.text((60, 2), str1)
-    if match.winner != 0:
+    if str1 != "TBD" and str2 != "TBD":
         #img.paste(getchek(), (180, 56 if match.winner == 2 else 5), getchek())
         d.text((180, 2), str(match.p1score), fill=((0,120,0) if match.winner==1 else (0,0,0)))
         d.text((180, 53), str(match.p2score), fill=((0,120,0) if match.winner==2 else (0,0,0)))
@@ -245,6 +246,7 @@ def drawbracketFAST(bracket, viewport):
     print(" -- - -- - ")
     for m in matches:
         match = m
+        # if not containsBye(match):
         img.paste(drawmatch(match), (int(mx - vx), int(my - vy)))
         mdrawnid.add(match.uniqueid)
         print("first: draw "+ str(match.up)+" "+ str(match)+ " @ "+ repr((int(mx - vx), int(my - vy))))
@@ -268,9 +270,10 @@ def drawbracketFAST(bracket, viewport):
             if mx - vx > vw:
                 break
             if match.uniqueid not in mdrawnid:
-                mdrawnid.add(match.uniqueid)
+                # if not containsBye(match):
                 img.paste(drawmatch(match), (int(mx - vx), int(my - vy)))
                 print("draw "+ str(match.up)+" "+str(match)+ " @ "+ repr((int(mx - vx), int(my - vy))))
+                mdrawnid.add(match.uniqueid)
         if lastchain:
             break
         mx = mx_old
@@ -368,6 +371,7 @@ def drawbracket(bracket):
         y = 30 + (ymult-1)*60
         fakey = (30+(((ymult/2)-1)*60))
         for ma in br:
+            # if not containsBye(ma):
             im = drawmatch(ma)
             if(dbar):
                 # y mult /2
@@ -379,11 +383,12 @@ def drawbracket(bracket):
             #print("("+str(x)+", "+str(y)+")")
             if ma.wlink is not None and not ma.wlink.isspecial():
                 d.rectangle((x+200, y+36, x+320, y+40), fill=lcolor)
-            y += 120*ymult
             if not (ma.wlink in nb):
                 nb.append(ma.wlink)
+            y += 120*ymult
+        
         x += 220
-        ymult = ymult*int(len(br)/len(nb))
+        ymult = ymult*int(len(br) / len(nb))
         rdc = len(br)
         br = nb
     return img
