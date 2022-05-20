@@ -824,8 +824,8 @@ class ScoresPanel(wx.Panel):
         if (hasattr(match, 'p1score')):
             val1 = str(match.p1score)
             val2 = str(match.p2score)
-        self.w1 = wx.SpinCtrl(self, value=val1, min=-99, max=99, pos=(30, 20), size=(50, 30))
-        self.w2 = wx.SpinCtrl(self, value=val2, min=-99, max=99, pos=(180, 20), size=(50,30))
+        self.w1 = wx.SpinCtrl(self, value=val1, min=-99, max=99, pos=(30, 20), size=(50, 30), style=wx.TE_PROCESS_ENTER+wx.SP_ARROW_KEYS)
+        self.w2 = wx.SpinCtrl(self, value=val2, min=-99, max=99, pos=(180, 20), size=(50,30), style=wx.TE_PROCESS_ENTER+wx.SP_ARROW_KEYS)
         self.w1.SetFocus()
         self.w1.SetSelection(0, len(str(self.w1.GetValue())))
         self.w2.SetSelection(0, len(str(self.w2.GetValue())))
