@@ -4,10 +4,30 @@
 
 from collections import OrderedDict
 
-def containsBye(match):
-    p1bye = match.part1 and match.part1.isbye()
-    p2bye = match.part2 and match.part2.isbye()
-    return p1bye or p2bye
+
+def shouldSkip(match, part):
+    # print(match, part)
+    if match is None:
+        return False
+    if match.wlink is None:
+        return False
+    if match.part1 is None and match.part2 is None:
+        return False
+    cond2 = (match.part2 is not None and match.part2.tag != part)
+    cond3 = (match.part1 is not None and match.part1.tag != part)
+    return cond2 and cond3
+
+
+def formatPlacing(placeInt):
+    onesDigit = placeInt % 10
+    suffix = "th"
+    if onesDigit == 1:
+        suffix = "st"
+    elif onesDigit == 2:
+        suffix = "nd"
+    elif onesDigit == 3:
+        suffix = "rd"
+    return f"{placeInt}{suffix}"
 
 
 def projected(brackets):
@@ -32,27 +52,45 @@ def projected(brackets):
             br = nbr
 
 
-def loserGets(brackets, match):
+def loserGets(brackets, match, part=None):
     placing = len(brackets[0])*2 + 1
     shadowRealm = brackets[-1].copy()
     while match.llink is not None:
         match = match.llink
-    if containsBye(match):
+    if match.containsBye():
         match = match.wlink
-    # print("SB:", match)
+    while shouldSkip(match, part):
+        match = match.wlink
+    while match.wonBy(part) and match.wlink is not None:
+        match = match.wlink
 
-    matchlst = []
-    round_index = 0
-    while match not in matchlst:
-        placing -= len(matchlst)
-        round_index += 1
-        matchlst = getmatchinrd(shadowRealm, round_index)
-        # print(placing, matchlst)
-    placing -= len(matchlst)
-    round_index += 1
-    matchlst = getmatchinrd(shadowRealm, round_index)
-    # print(placing, matchlst)
+    # print("SB:", match)
+    # print("SB->", match.wlink)
+    # if match.wlink is not None: print("SB->", match.wlink.wlink)
     
+    # if match not in shadowRealm:
+    if match.wlink is None: # Grand Finalist
+        placing = 2
+    elif match.wlink.wlink is None:
+        if match.wonBy(part):
+            placing = 2
+            if match.wlink.wonBy(part):
+                placing = 1
+        else:
+            placing = 3
+    # elif match in shadowRealm and match.wlink is not None and match.wlink in shadowRealm:
+    #     if match.wonBy(part):
+    else:
+        matchlst = []
+        round_index = 0
+        while match not in matchlst:
+            placing -= len(matchlst)
+            round_index += 1
+            matchlst = getmatchinrd(shadowRealm, round_index)
+            # print(placing, matchlst)
+        placing -= len(matchlst)
+
+    print(f"{formatPlacing(placing)}: {part}")
     return placing
 
 
@@ -64,28 +102,33 @@ def minPlacing(brackets, participants):
     lst = []
     for participant in participants:
         sets = []
+        # print(f"{participant} placed...")
 
         for br_index in range(len(brackets)):
             for match in brackets[br_index]:
                 if (match.part1 and match.part1.tag == participant) or (match.part2 and match.part2.tag == participant):
-                    # print(f"{participant}: {match}")
                     if match not in sets:
                         sets.append(match)
         matchToAnalyze = sets[-1]
-        while matchToAnalyze.winner == 1 and matchToAnalyze.part1 and matchToAnalyze.part1.tag == participant:
+        while matchToAnalyze is not None and matchToAnalyze.wonBy(participant):
             matchToAnalyze = matchToAnalyze.wlink
-        while matchToAnalyze.winner == 2 and matchToAnalyze.part2 and matchToAnalyze.part2.tag == participant:
-            matchToAnalyze = matchToAnalyze.wlink
-        
-        # print(matchToAnalyze)
-        lst.append([loserGets(brackets, matchToAnalyze), participant])
+
+        # print(f"SB {participant}: {matchToAnalyze}")
+        if matchToAnalyze is None:
+            # print(f"1st: {participant}")
+            lst.append([1, participant])
+        else:
+            # print(f"MA: {matchToAnalyze}")
+            lst.append([loserGets(brackets, matchToAnalyze, participant), participant])
+
+    # print(lst)
     lst.sort()
     return lst
         
 
 def placing(brackets):
     '''
-    given a bracket, returns a dict mapping Participant -> placing
+    (deprecated) given a bracket, returns a dict mapping Participant -> placing
     '''
     place = OrderedDict()
     placing = len(brackets[0])*2 + 1
@@ -117,6 +160,7 @@ def getmatchinrd(bracket, rd, nummatches = -1):
     '''
     returner = []
     retset = set()
+    # print(rd)
     for m in bracket:
         mtch = m.itwlink(rd-1)
         if mtch is not None and mtch.uniqueid not in retset:

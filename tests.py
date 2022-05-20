@@ -23,7 +23,7 @@ class test_brackets(TestCase):
         self.assertEqual(w[1].part1.tag, 'b')
         self.assertEqual(w[1].part2.tag, 'c')
 
-    def test3place(self):
+    def test3place1(self):
         w = data.genm(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
         l = data.genl(w)
         data.fbracket([w, l])
@@ -32,6 +32,34 @@ class test_brackets(TestCase):
         pl = bracketfuncs.placing([w, l])
         for p in pl:
             self.assertEqual(placingex[p.tag], pl[p])
+
+    def test4place8_2(self):
+        parts = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+        w = data.genm(parts)
+        l = data.genl(w)
+        data.fbracket([w, l])
+        bracketfuncs.projected([w, l])
+        placingex = {'h': 7, 'g': 7, 'f': 5, 'e': 5, 'd': 4, 'c': 3, 'b': 2, 'a': 2}
+        pl = bracketfuncs.minPlacing([w, l], parts)
+        # print(pl)
+        for p in pl:
+            # print(p)
+            self.assertEqual(placingex[p[1]], p[0])
+
+    def test5place8_3(self):
+        parts = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+        w = data.genm(parts)
+        l = data.genl(w)
+        l2 = data.genl(l)
+        brs = [w, l, l2]
+        data.fbracket([w, l, l2])
+        bracketfuncs.projected([w, l, l2])
+        placingex = {'h': 7, 'g': 6, 'f': 7, 'e': 5, 'd': 4, 'c': 3, 'b': 3, 'a': 2}
+        pl = bracketfuncs.minPlacing([w, l, l2], parts)
+        print(pl)
+        for p in pl:
+            # print(p)
+            self.assertEqual(placingex[p[1]], p[0])
 
 
 class test_iobrackets(TestCase):

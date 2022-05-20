@@ -61,7 +61,7 @@ def getchek():
 
 
 def drawmatch(match, highlight=False):
-    if bracketfuncs.containsBye(match):
+    if match.containsBye():
         return Image.new('RGBA', (200, 80), color=((0, 0, 0)))
     if match.isspecial():
         return drawspmatch(match, highlight)
@@ -246,7 +246,7 @@ def drawbracketFAST(bracket, viewport):
     print(" -- - -- - ")
     for m in matches:
         match = m
-        # if not containsBye(match):
+        # if not match.containsBye():
         img.paste(drawmatch(match), (int(mx - vx), int(my - vy)))
         mdrawnid.add(match.uniqueid)
         print("first: draw "+ str(match.up)+" "+ str(match)+ " @ "+ repr((int(mx - vx), int(my - vy))))
@@ -270,7 +270,7 @@ def drawbracketFAST(bracket, viewport):
             if mx - vx > vw:
                 break
             if match.uniqueid not in mdrawnid:
-                # if not containsBye(match):
+                # if not match.containsBye():
                 img.paste(drawmatch(match), (int(mx - vx), int(my - vy)))
                 print("draw "+ str(match.up)+" "+str(match)+ " @ "+ repr((int(mx - vx), int(my - vy))))
                 mdrawnid.add(match.uniqueid)
@@ -371,7 +371,7 @@ def drawbracket(bracket):
         y = 30 + (ymult-1)*60
         fakey = (30+(((ymult/2)-1)*60))
         for ma in br:
-            # if not containsBye(ma):
+            # if not match.containsBye():
             im = drawmatch(ma)
             if(dbar):
                 # y mult /2

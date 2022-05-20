@@ -80,6 +80,14 @@ class Match:
         if self.winner == 1:
             return self.part1
 
+    def wonBy(self, part):
+        return (self.winner == 1 and self.part1.tag == part) or (self.winner == 2 and self.part2.tag == part)
+
+    def containsBye(self):
+        p1bye = self.part1 and self.part1.isbye()
+        p2bye = self.part2 and self.part2.isbye()
+        return p1bye or p2bye
+
     def setwinner(self, part):
         if (self.winner != 0):
             self.settbd()

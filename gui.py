@@ -405,7 +405,7 @@ class ManagementPage(wx.Panel):
         a.SetEditable(False)
         ptxt = ""
         for p in placel:
-            ptxt += str(p[0]) + ". " + p[1] + "\n"
+            ptxt += bracketfuncs.formatPlacing(p[0]) + ") " + p[1] + "\n"
         a.SetValue(ptxt)
         d.SetSize((250, 320))
         d.Show(True)
@@ -814,14 +814,20 @@ class ScoresPanel(wx.Panel):
 
     def __init__(self, parent, match, dilog, pos=(0, 0)):
         wx.Panel.__init__(self, parent, pos=pos, size=(300, 75))
+        # print(match)
         lbltext = "Report Scores"
         lbl = wx.StaticText(self, label=lbltext, pos=(30, 0))
         l1 = wx.StaticText(self, label=str(match.part1), pos=(23, 60))
         l2 = wx.StaticText(self, label=str(match.part2), pos=(173,60))
-        self.w1 = wx.SpinCtrl(self, value=str(match.p1score), min=-99, max=99, pos=(30, 20), size=(50, 30))
+        val1 = ""
+        val2 = ""
+        if (hasattr(match, 'p1score')):
+            val1 = str(match.p1score)
+            val2 = str(match.p2score)
+        self.w1 = wx.SpinCtrl(self, value=val1, min=-99, max=99, pos=(30, 20), size=(50, 30))
+        self.w2 = wx.SpinCtrl(self, value=val2, min=-99, max=99, pos=(180, 20), size=(50,30))
         self.w1.SetFocus()
         self.w1.SetSelection(0, len(str(self.w1.GetValue())))
-        self.w2 = wx.SpinCtrl(self, value=str(match.p2score), min=-99, max=99, pos=(180, 20), size=(50,30))
         self.w2.SetSelection(0, len(str(self.w2.GetValue())))
 
         #self.Bind(wx.EVT_BUTTON, dilog.winner1, w1)
